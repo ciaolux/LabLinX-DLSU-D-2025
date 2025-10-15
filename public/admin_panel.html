@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Panel - LabLinX DLSU-D</title>
+  <style>
+    :root {
+      --primary-dark: #00274d; --primary-light: #003a70; --accent-gold: #ffcd00;
+      --text-light: #f8f9fa; --text-dark: #343a40; --background-light: #f4f6f9;
+      --background-dark: #181a1f; --card-bg-light: #ffffff; --card-bg-dark: #212529;
+      --border-light: #dee2e6; --border-dark: #495057; --success: #28a745;
+      --danger: #dc3545; --warning: #f0ad4e;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --status-past-due: #ff4d4d;
+      --status-returned: #007bff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body, html { font-family: var(--font-family); background-color: var(--background-light); color: var(--text-dark); min-height: 100vh; overflow-x: hidden; transition: background-color 0.3s ease, color 0.3s ease; }
+    body.dark { background-color: var(--background-dark); color: var(--text-light); }
+    a { text-decoration: none; color: inherit; }
+    #sidebar { width: 250px; background-color: var(--primary-dark); height: 100vh; color: var(--text-light); position: fixed; top: 0; left: 0; display: flex; flex-direction: column; padding: 1.5rem 0; z-index: 200; transition: width 0.3s ease; border-right: 1px solid var(--primary-light); }
+    #sidebar .logo { display: flex; flex-direction: column; align-items: center; margin-bottom: 2rem; padding: 0 1rem; }
+    #sidebar .logo img { width: 70px; height: 70px; margin-bottom: 0.5rem; border-radius: 50%; }
+    #sidebar .logo-title { color: var(--accent-gold); font-weight: 700; font-size: 1rem; opacity: 1; transition: opacity 0.2s ease; }
+    #sidebar nav { display: flex; flex-direction: column; width: 100%; margin-top: 1rem; flex-grow: 1; }
+    #sidebar nav a { color: #e0e0e0; padding: 14px 25px; font-weight: 500; display: flex; align-items: center; justify-content: space-between; gap: 15px; transition: background-color 0.2s, color 0.2s, border-left-color 0.2s; border-left: 4px solid transparent; cursor: pointer; }
+    #sidebar nav a .link-content { display: flex; align-items: center; gap: 15px; }
+    #sidebar nav a svg { width: 20px; height: 20px; flex-shrink: 0; }
+    #sidebar nav a:hover { background-color: var(--primary-light); color: var(--accent-gold); }
+    #sidebar nav a.active { background-color: var(--accent-gold); color: var(--primary-dark); font-weight: 600; border-left-color: #fff; }
+    .logout-link { margin-top: auto; }
+    .notification-badge { background-color: var(--danger); color: white; font-size: 0.75rem; font-weight: bold; padding: 2px 7px; border-radius: 50%; display: none; }
+    body.sidebar-collapsed #sidebar { width: 80px; }
+    body.sidebar-collapsed .logo-title, body.sidebar-collapsed nav a span, body.sidebar-collapsed .notification-badge { display: none; }
+    body.sidebar-collapsed nav a { justify-content: center; }
+    header { margin-left: 250px; height: 65px; background-color: var(--card-bg-light); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 150; transition: margin-left 0.3s ease, background-color 0.3s ease; border-bottom: 1px solid var(--border-light); }
+    body.dark header { background-color: var(--card-bg-dark); border-bottom-color: var(--border-dark); }
+    body.sidebar-collapsed header { margin-left: 80px; }
+    .header-left { display: flex; align-items: center; gap: 1rem; }
+    .toggle-btn { background: none; border: none; cursor: pointer; color: var(--text-dark); }
+    body.dark .toggle-btn { color: var(--text-light); }
+    .toggle-btn svg { width: 24px; height: 24px; }
+    .top-actions { display: flex; align-items: center; gap: 1.5rem; }
+    .dark-toggle { background: none; border: none; cursor: pointer; color: var(--text-dark); }
+    body.dark .dark-toggle { color: var(--text-light); }
+    .dark-toggle svg { width: 22px; height: 22px; }
+    .profile img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent-gold); }
+    main { margin-left: 250px; padding: 2.5rem; transition: margin-left 0.3s ease; }
+    body.sidebar-collapsed main { margin-left: 80px; }
+    main h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary-dark); }
+    body.dark main h1 { color: var(--text-light); }
+    .page-subtitle { margin-top: 0; margin-bottom: 2.5rem; font-size: 1.1rem; color: #6c757d; font-weight: 500; }
+    body.dark .page-subtitle { color: #adb5bd; }
+    .page-content { display: none; }
+    .page-content.active { display: block; }
+    .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+    .card { background-color: var(--card-bg-light); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); transition: transform 0.25s ease, box-shadow 0.25s ease; border: 1px solid var(--border-light); display: flex; flex-direction: column; justify-content: space-between; min-height: 180px; }
+    body.dark .card { background-color: var(--card-bg-dark); border-color: var(--border-dark); }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+    .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+    .card-icon { width: 48px; height: 48px; border-radius: 8px; display: grid; place-items: center; }
+    .card-icon svg { width: 28px; height: 28px; color: #fff; }
+    .icon-aqua { background-color: #1abc9c; } .icon-red { background-color: #e74c3c; } .icon-green { background-color: #2ecc71; }
+    .card-header-text .title { font-weight: 600; font-size: 1rem; }
+    .card-header-text .subtitle { font-size: 0.85rem; color: #6c757d; }
+    body.dark .card-header-text .subtitle { color: #adb5bd; }
+    .card-body .counter { font-size: 2.8rem; font-weight: 700; line-height: 1; color: var(--primary-dark); }
+    body.dark .card-body .counter { color: var(--text-light); }
+    .card-body .items { font-size: 0.9rem; margin-top: 4px; color: #6c757d; }
+    body.dark .card-body .items { color: #adb5bd; }
+    .card-footer { margin-top: 1.5rem; font-size: 0.9rem; font-weight: 500; color: var(--primary-light); display: flex; align-items: center; gap: 5px; }
+    body.dark .card-footer { color: var(--accent-gold); }
+    .inventory-card { background-color: var(--card-bg-light); border-radius: 8px; width: 100%; padding: 1.5rem 2rem; margin-bottom: 2rem; box-shadow: var(--shadow); border: 1px solid var(--border-light); }
+    body.dark .inventory-card { background-color: var(--card-bg-dark); border-color: var(--border-dark); }
+    .inventory-card h2 { margin-top: 0; margin-bottom: 1.5rem; font-size: 1.5rem; color: var(--primary-dark); border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem; }
+    body.dark .inventory-card h2 { color: var(--text-light); border-bottom-color: var(--border-dark); }
+    .search-bar { width: 100%; max-width: 400px; margin-bottom: 1.5rem; }
+    .search-bar input { width: 100%; padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-light); font-size: 1rem; background-color: var(--card-bg-light); color: var(--text-dark); }
+    body.dark .search-bar input { background-color: var(--card-bg-dark); border-color: var(--border-dark); color: var(--text-light); }
+    .search-bar input:focus { border-color: var(--primary-dark); box-shadow: 0 0 0 3px rgba(0, 58, 112, 0.15); outline: none; }
+    .add-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; align-items: flex-end; }
+    .add-form input, .add-form select { padding: 8px 12px; border-radius: 5px; border: 1px solid var(--border-light); font-size: 0.95rem; width: 100%; background-color: var(--card-bg-light); color: var(--text-dark); }
+    body.dark .add-form input, body.dark .add-form select { background-color: var(--card-bg-dark); border-color: var(--border-dark); color: var(--text-light); }
+    .add-form button { background-color: var(--primary-dark); color: var(--accent-gold); padding: 9px 20px; border-radius: 5px; border: none; cursor: pointer; font-weight: 600; transition: background-color 0.2s; white-space: nowrap; }
+    .add-form button:hover { background-color: var(--primary-light); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    table th, table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-light); }
+    body.dark table th, body.dark table td { border-bottom-color: var(--border-dark); }
+    table th { background-color: var(--background-light); color: var(--primary-dark); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; }
+    body.dark table th { background-color: var(--background-dark); color: var(--text-light); }
+    table tr:last-child td { border-bottom: none; }
+    table tbody tr:hover { background-color: #fcf8e3; }
+    body.dark table tbody tr:hover { background-color: #2c2f33; }
+    .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; color: white; text-align: center; }
+    .status-Pending { background-color: var(--warning); }
+    .status-Approved { background-color: var(--success); }
+    .status-Rejected { background-color: var(--danger); }
+    .status-PastDue { background-color: var(--status-past-due); }
+    .status-Returned { background-color: var(--status-returned); }
+    .status-Available { color: var(--success); } .status-In-Use { color: var(--warning); } .status-Maintenance { color: var(--danger); }
+    .actions-cell { display: flex; gap: 8px; }
+    .btn { padding: 6px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.85; }
+    .btn svg { width: 14px; height: 14px; }
+    .btn-edit { background-color: var(--primary-light); color: white; }
+    .btn-delete { background-color: var(--danger); color: white; }
+    .btn-approve { background-color: var(--success); color: white; }
+    .btn-reject { background-color: var(--danger); color: white; }
+    .btn-return { background-color: var(--primary-dark); color: var(--accent-gold); }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+    .modal-content { background-color: var(--card-bg-light); margin: auto; padding: 25px; width: 90%; max-width: 500px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    body.dark .modal-content { background-color: var(--card-bg-dark); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; color: var(--primary-dark); }
+    body.dark .modal-header h2 { color: var(--text-light); }
+    .close-button { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .close-button:hover, .close-button:focus { color: var(--text-dark); }
+    body.dark .close-button:hover, body.dark .close-button:focus { color: var(--text-light); }
+    #editForm { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    #editForm label { font-weight: 600; margin-bottom: -10px; }
+    #editForm input, #editForm select { padding: 10px; border: 1px solid var(--border-light); border-radius: 5px; background-color: var(--card-bg-light); color: var(--text-dark); }
+    body.dark #editForm input, body.dark #editForm select { background-color: var(--card-bg-dark); border-color: var(--border-dark); color: var(--text-light); }
+    #editForm button { background-color: var(--success); color: white; padding: 12px; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; margin-top: 1rem; }
+    #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+    .toast { padding: 12px 20px; background-color: var(--primary-dark); color: white; border-radius: 6px; box-shadow: var(--shadow); }
+    #notification-list .notification-item { background-color: var(--card-bg-light); border-left: 5px solid var(--primary-light); margin-bottom: 1rem; padding: 1rem; border-radius: 5px; box-shadow: var(--shadow); }
+    body.dark #notification-list .notification-item { background-color: var(--card-bg-dark); border-left-color: var(--accent-gold); }
+    #notification-list .notification-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 0.25rem; }
+    body.dark #notification-list .notification-title { color: var(--accent-gold); }
+    #notification-list .notification-message { color: #6c757d; }
+    body.dark #notification-list .notification-message { color: #adb5bd; }
+    #notification-list .notification-time { font-size: 0.8rem; color: #6c757d; margin-top: 0.5rem; text-align: right; }
+    body.dark #notification-list .notification-time { color: #adb5bd; }
+    
+    /* --- Live Scan Styles --- */
+    .live-scan-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .live-scan-container .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .live-scan-container .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    .live-scan-container .scan-input {
+        font-size: 1.5rem;
+        padding: 15px;
+        text-align: center;
+        border: 2px dashed var(--border-light);
+        border-radius: 8px;
+        width: 100%;
+        background-color: var(--card-bg-light);
+        color: var(--text-dark);
+    }
+    .prefix-input {
+        font-size: 1.2rem;
+        padding: 12px;
+        text-align: center;
+        border: 1px solid var(--border-light);
+        border-radius: 6px;
+        width: 100%;
+    }
+    body.dark .prefix-input {
+         background-color: var(--card-bg-dark);
+         border-color: var(--border-dark);
+         color: var(--text-light);
+    }
+    body.dark .live-scan-container .scan-input { 
+        border-color: var(--border-dark); 
+        background-color: var(--card-bg-dark);
+        color: var(--text-light);
+    }
+    .live-scan-container .scan-input:focus { 
+        border-style: solid; 
+        border-color: var(--primary-light); 
+        outline: none;
+    }
+    .live-scan-container .scan-input:read-only {
+        background-color: var(--background-light);
+        border-style: solid;
+        cursor: not-allowed;
+    }
+    body.dark .live-scan-container .scan-input:read-only {
+         background-color: var(--background-dark);
+    }
+    .scan-controls { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; }
+    .scan-controls label { font-weight: 600; }
+    .scan-controls select { padding: 8px; border-radius: 5px; border: 1px solid var(--border-light); }
+    .auto-submit-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+    .auto-submit-toggle label {
+        cursor: pointer;
+        user-select: none;
+    }
+    .status-box {
+        margin-top: 1.5rem;
+        padding: 1.5rem;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        font-weight: 500;
+        text-align: center;
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--background-light);
+        border: 1px solid var(--border-light);
+    }
+    body.dark .status-box { background-color: var(--background-dark); border-color: var(--border-dark); }
+    .status-box.success { border-left: 5px solid var(--success); color: var(--success); }
+    .status-box.error { border-left: 5px solid var(--danger); color: var(--danger); }
+    #trackingDetailsContainer h3 { margin-top: 0; margin-bottom: 0.5rem; font-size: 1.25rem; }
+    #trackingDetailsContainer .detail-item { font-weight: 600; }
+    #trackingBorrowerInfo {
+        background-color: #fff3cd;
+        color: #664d03;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-top: 1rem;
+        border: 1px solid #ffecb5;
+    }
+    body.dark #trackingBorrowerInfo {
+        background-color: #332701;
+        color: #ffc107;
+        border-color: #664d03;
+    }
+    #trackingHistoryLog {
+        margin-top: 1rem;
+        font-family: monospace;
+        font-size: 0.9rem;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    #trackingHistoryLog div {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-light);
+    }
+    body.dark #trackingHistoryLog div { border-bottom-color: var(--border-dark); }
+    
+    @media screen and (max-width: 768px) { body:not(.sidebar-collapsed) #sidebar { width: 80px; } body:not(.sidebar-collapsed) .logo-title, body:not(.sidebar-collapsed) nav a span { display: none; } body:not(.sidebar-collapsed) nav a { justify-content: center; } header, main { margin-left: 80px; } main { padding: 1.5rem; } .live-scan-container { grid-template-columns: 1fr; } }
+    @media screen and (max-width: 600px) { body { padding-bottom: 60px; } #sidebar { bottom: 0; top: auto; width: 100%; height: 60px; flex-direction: row; align-items: center; justify-content: space-around; border-top: 1px solid var(--border-light); padding: 0; } body.dark #sidebar { border-top-color: var(--border-dark); } #sidebar .logo { display: none; } #sidebar nav { margin-top: 0; flex-direction: row; width: 100%; justify-content: space-around; } #sidebar nav a { border-left: none; border-top: 4px solid transparent; } #sidebar nav a.active { border-top-color: #fff; border-left-color: transparent;} .logout-link { display: none; } header, main { margin-left: 0; } }
+  </style>
+</head>
+<body>
+
+  <aside id="sidebar">
+    <div class="logo">
+      <img src="logo.png" alt="LabLinX Logo">
+      <div class="logo-title">LabLinX DLSU-D</div>
+    </div>
+    <nav>
+      <a data-page="dashboard" class="active">
+        <div class="link-content">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+            <span>Dashboard</span>
+        </div>
+      </a>
+      <a data-page="live-scan">
+        <div class="link-content">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5z" /></svg>
+            <span>Live Scan</span>
+        </div>
+      </a>
+      <a data-page="inventory">
+        <div class="link-content">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+            <span>Inventory</span>
+        </div>
+      </a>
+      <a data-page="requests">
+        <div class="link-content">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+            <span>Requests</span>
+        </div>
+      </a>
+      <a data-page="notifications">
+        <div class="link-content">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+            <span>Notifications</span>
+        </div>
+        <span id="notification-badge" class="notification-badge">0</span>
+      </a>
+      <a href="/logout" class="logout-link">
+        <div class="link-content">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+            <span>Log Out</span>
+        </div>
+      </a>
+    </nav>
+  </aside>
+
+  <header>
+    <div class="header-left">
+        <button class="toggle-btn" title="Toggle Sidebar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+    </div>
+    <div class="top-actions">
+        <button class="dark-toggle" title="Toggle Dark Mode">
+            <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            <svg class="moon-icon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+      <a href="#" class="profile">
+        <img src="https://i.pravatar.cc/40" alt="User Profile Picture">
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <div id="dashboard-content" class="page-content active">
+        <h1>Dashboard</h1>
+        <p class="page-subtitle">Overview of All Inventories</p>
+        <section class="dashboard-cards">
+            <article class="card">
+                <div class="card-header"><div class="card-icon icon-aqua"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 21v-1.5M15.75 3v1.5M12 4.5v-1.5m0 18v-1.5M5.636 5.636l1.06-1.06M5.636 18.364l1.06 1.06M18.364 5.636l-1.06-1.06M18.364 18.364l-1.06 1.06M12 12a6 6 0 110-12 6 6 0 010 12z" /></svg></div><div class="card-header-text"><div class="title">Total Equipment Units</div><div class="subtitle">Sum of all item quantities</div></div></div>
+                <div class="card-body"><h2 class="counter" data-target="0">0</h2><div class="items">Units</div></div>
+                <a href="javascript:void(0)" class="card-footer" onclick="showPage('inventory')"><span>View Details</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg></a>
+            </article>
+            <article class="card">
+                <div class="card-header"><div class="card-icon icon-red"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m-3 0l3-3m0 0l-3-3m3 3H9" /></svg></div><div class="card-header-text"><div class="title">Borrowed Items</div><div class="subtitle">Units currently in use</div></div></div>
+                <div class="card-body"><h2 class="counter" data-target="0">0</h2><div class="items">Units</div></div>
+                <a href="javascript:void(0)" class="card-footer" onclick="showPage('inventory')"><span>View Details</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg></a>
+            </article>
+            <article class="card">
+                <div class="card-header"><div class="card-icon icon-green"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" /></svg></div><div class="card-header-text"><div class="title">Items in Maintenance</div><div class="subtitle">Item types needing attention</div></div></div>
+                <div class="card-body"><h2 class="counter" data-target="0">0</h2><div class="items">Items</div></div>
+                <a href="javascript:void(0)" class="card-footer" onclick="showPage('inventory')"><span>View Details</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg></a>
+            </article>
+        </section>
+    </div>
+
+    <div id="live-scan-content" class="page-content">
+        <h1>Live Scan Transaction</h1>
+        <p class="page-subtitle">Process transactions and view real-time item status and history.</p>
+        <div class="live-scan-container">
+            <section class="inventory-card">
+                <h2>Transaction Processor</h2>
+                <div class="scan-controls">
+                    <label for="scanMode">Mode:</label>
+                    <select id="scanMode">
+                        <option value="Borrowing" selected>Borrowing</option>
+                        <option value="Returning">Returning</option>
+                    </select>
+                    <div class="auto-submit-toggle">
+                        <input type="checkbox" id="autoSubmitCheck" checked>
+                        <label for="autoSubmitCheck">Auto-Submit</label>
+                    </div>
+                </div>
+                <form id="scanForm">
+                    <div class="form-group" id="studentIdPrefixGroup">
+                        <label for="studentIdPrefixInput">Prefix/Suffix for Student ID</label>
+                        <input type="text" id="studentIdPrefixInput" class="prefix-input" placeholder="Enter prefix/suffix">
+                    </div>
+                    <div class="form-group" id="studentIdGroup">
+                        <label for="studentIdInput">1. Scan Student ID</label>
+                        <input type="text" id="studentIdInput" class="scan-input" placeholder="Scan Student ID to Borrow..." autocomplete="off">
+                    </div>
+                    <div id="itemIdGroup" style="display: none;">
+                        <div class="form-group" id="itemIdPrefixGroup">
+                            <label for="itemIdPrefixInput">Prefix/Suffix for Item</label>
+                            <input type="text" id="itemIdPrefixInput" class="prefix-input" placeholder="Enter prefix/suffix">
+                        </div>
+                        <div class="form-group">
+                           <label for="itemIdInput">2. Scan Item Barcode</label>
+                           <input type="text" id="itemIdInput" class="scan-input" placeholder="Scan Item to Borrow..." autocomplete="off">
+                        </div>
+                    </div>
+                </form>
+                <div id="scanStatus" class="status-box">
+                    Awaiting scan...
+                </div>
+            </section>
+            <section class="inventory-card">
+                <h2>Live Tracking Details</h2>
+                <div id="trackingDetailsContainer">
+                    <p>Scan an item to see its details here.</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div id="inventory-content" class="page-content">
+        <h1>Manage Lab Inventory</h1>
+        <p class="page-subtitle">Add, edit, and delete lab equipment.</p>
+        <section class="inventory-card">
+            <h2>Add New Equipment</h2>
+            <form class="add-form" id="addForm">
+                <input type="text" id="itemId" placeholder="Item ID (e.g., MIC-001)" required />
+                <input type="text" id="itemName" placeholder="Equipment Name" required />
+                <select id="category" required>
+                    <option value="" disabled selected>Select Category</option>
+                    <option value="General">General</option>
+                    <option value="Office Supplies">Office Supplies</option>
+                </select>
+                <input type="number" id="quantity" placeholder="Quantity" min="0" required />
+                <input type="text" id="location" placeholder="Location" required />
+                <button type="submit">Add Item</button>
+            </form>
+        </section>
+        <section class="inventory-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <h2>Lab Equipment Inventory & Status</h2>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search equipment..." />
+                </div>
+            </div>
+            <table id="inventoryTable">
+                <thead>
+                    <tr><th>Item ID</th><th>Equipment Name</th><th>Category</th><th>Quantity</th><th>Location</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+    </div>
+
+    <div id="requests-content" class="page-content">
+        <h1>Manage Student Requests</h1>
+        <p class="page-subtitle">Approve or reject pending equipment requests.</p>
+        <section class="inventory-card">
+            <h2>All Student Requests</h2>
+            <table id="requestsTable">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Item ID</th>
+                        <th>Item Name</th>
+                        <th>Starting Date</th>
+                        <th>Due Date</th>
+                        <th>Quantity</th>
+                        <th>Reason</th>
+                        <th>Return Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="requestsTableBody"></tbody>
+            </table>
+        </section>
+    </div>
+
+    <div id="notifications-content" class="page-content">
+        <h1>Notifications</h1>
+        <p class="page-subtitle">Latest activities and alerts.</p>
+        <div id="notification-list">
+        </div>
+    </div>
+  </main>
+  
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Equipment</h2>
+        <span class="close-button">&times;</span>
+      </div>
+      <form id="editForm">
+        <input type="hidden" id="editItemId">
+        <label for="editItemName">Equipment Name</label><input type="text" id="editItemName" required />
+        <label for="editCategory">Category</label>
+        <select id="editCategory" required>
+            <option value="General">General</option>
+            <option value="Office Supplies">Office Supplies</option>
+        </select>
+        <label for="editQuantity">Quantity</label><input type="number" id="editQuantity" min="0" required />
+        <label for="editLocation">Location</label><input type="text" id="editLocation" required />
+        <button type="submit">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const body = document.body;
+      const toggleBtn = document.querySelector(".toggle-btn");
+      const darkToggle = document.querySelector(".dark-toggle");
+      const sidebarLinks = document.querySelectorAll("#sidebar nav a[data-page]");
+      const addForm = document.getElementById('addForm');
+      const inventoryTableBody = document.getElementById('inventoryTable').querySelector('tbody');
+      const searchInput = document.getElementById('searchInput');
+      const modal = document.getElementById('editModal');
+      const closeBtn = modal.querySelector('.close-button');
+      const editForm = document.getElementById('editForm');
+      const requestsTableBody = document.getElementById('requestsTableBody');
+      const notificationList = document.getElementById('notification-list');
+      const notificationBadge = document.getElementById('notification-badge');
+      const mainContentArea = document.querySelector('main');
+      
+      const scanForm = document.getElementById('scanForm');
+      const scanMode = document.getElementById('scanMode');
+      const scanStatus = document.getElementById('scanStatus');
+      const trackingDetailsContainer = document.getElementById('trackingDetailsContainer');
+      const autoSubmitCheck = document.getElementById('autoSubmitCheck');
+      const studentIdPrefixInput = document.getElementById('studentIdPrefixInput');
+      const studentIdInput = document.getElementById('studentIdInput');
+      const itemIdPrefixInput = document.getElementById('itemIdPrefixInput');
+      const itemIdInput = document.getElementById('itemIdInput');
+      const studentIdPrefixGroup = document.getElementById('studentIdPrefixGroup'); // Added for the fix
+      const studentIdGroup = document.getElementById('studentIdGroup');
+      const itemIdGroup = document.getElementById('itemIdGroup');
+      let currentBorrowingStudentId = null;
+      let scanDebounceTimer = null;
+
+      let allInventoryData = [];
+      let allRequestsData = [];
+      let notifications = [];
+      let seenRequestIds = new Set();
+
+      const initializeApp = () => {
+          setupEventListeners();
+          showPage('dashboard');
+          fetchAllRequests();
+      };
+
+      const setupEventListeners = () => {
+        toggleBtn.addEventListener("click", () => body.classList.toggle("sidebar-collapsed"));
+        darkToggle.addEventListener("click", () => {
+            body.classList.toggle("dark");
+            const isDarkMode = body.classList.contains("dark");
+            darkToggle.querySelector('.sun-icon').style.display = isDarkMode ? 'none' : 'block';
+            darkToggle.querySelector('.moon-icon').style.display = isDarkMode ? 'block' : 'none';
+        });
+        sidebarLinks.forEach(link => {
+            if (link.dataset.page) {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showPage(link.dataset.page)
+                });
+            }
+        });
+        addForm.addEventListener('submit', handleAddItem);
+        searchInput.addEventListener('input', handleSearch);
+        editForm.addEventListener('submit', handleUpdateItem);
+        closeBtn.onclick = () => { modal.style.display = 'none'; };
+        window.onclick = (event) => { if (event.target == modal) { modal.style.display = 'none'; } };
+
+        scanMode.addEventListener('change', resetScannerUI);
+        scanForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            processScan(document.activeElement);
+        });
+        const handleAutoSubmit = (event) => {
+            clearTimeout(scanDebounceTimer);
+            if (autoSubmitCheck.checked) {
+                scanDebounceTimer = setTimeout(() => {
+                    processScan(event.target);
+                }, 200);
+            }
+        };
+        studentIdInput.addEventListener('input', handleAutoSubmit);
+        itemIdInput.addEventListener('input', handleAutoSubmit);
+        mainContentArea.addEventListener('click', (event) => {
+            const liveScanPage = document.getElementById('live-scan-content');
+            if (liveScanPage.classList.contains('active') && !event.target.closest('.live-scan-container form, .live-scan-container select')) {
+                if (itemIdGroup.style.display !== 'none') {
+                    itemIdPrefixInput.focus();
+                } else if (studentIdGroup.style.display !== 'none') {
+                    studentIdPrefixInput.focus();
+                }
+            }
+        });
+      };
+
+      window.showPage = (pageId) => {
+        document.querySelectorAll('.page-content').forEach(page => page.classList.remove('active'));
+        document.getElementById(`${pageId}-content`).classList.add('active');
+        sidebarLinks.forEach(link => {
+            if (link.dataset.page) link.classList.toggle('active', link.dataset.page === pageId);
+        });
+
+        if (pageId === 'dashboard') updateDashboard();
+        else if (pageId === 'inventory') fetchInventory();
+        else if (pageId === 'requests') fetchAllRequests();
+        else if (pageId === 'notifications') renderNotifications();
+        else if (pageId === 'live-scan') initializeLiveScan();
+      };
+      
+      function initializeLiveScan() {
+          resetScannerUI();
+      }
+      
+      function clearTrackingDetails() {
+          trackingDetailsContainer.innerHTML = '<p>Scan an item to see its details here.</p>';
+      }
+
+      function resetScannerUI() {
+          currentBorrowingStudentId = null;
+          studentIdInput.value = '';
+          itemIdInput.value = '';
+          studentIdPrefixInput.value = '';
+          itemIdPrefixInput.value = '';
+          studentIdInput.readOnly = false;
+          scanStatus.textContent = 'Awaiting scan...';
+          scanStatus.className = 'status-box';
+          
+          const mode = scanMode.value;
+          if (mode === 'Returning') {
+              studentIdPrefixGroup.style.display = 'none'; // FIX: Hide prefix group
+              studentIdGroup.style.display = 'none';
+              itemIdGroup.style.display = 'block';
+              itemIdInput.placeholder = 'Scan item to RETURN...';
+              itemIdPrefixInput.focus();
+          } else { // Borrowing
+              studentIdPrefixGroup.style.display = 'block'; // FIX: Show prefix group
+              studentIdGroup.style.display = 'block';
+              itemIdGroup.style.display = 'none';
+              studentIdInput.placeholder = 'Scan student ID to BORROW...';
+              studentIdPrefixInput.focus();
+          }
+          clearTrackingDetails();
+      }
+
+      async function fetchAndDisplayItemDetails(itemId) {
+          trackingDetailsContainer.innerHTML = '<p>Loading item details...</p>';
+          try {
+              const response = await fetch(`/api/item-details/${itemId}`);
+              if (!response.ok) {
+                  throw new Error('Item not found in any inventory.');
+              }
+              const data = await response.json();
+              const statusClass = (data.status || 'Available').replace(/[^a-zA-Z0-9]/g, '');
+              let trackingHTML = `<h3>${data.name}</h3><p><strong>ID:</strong> ${data.itemId} | <strong>Status:</strong> <span class="status-badge status-${statusClass}">${data.status}</span></p>`;
+              if (data.currentLoan) {
+                  trackingHTML += `<div id="trackingBorrowerInfo"><p class="detail-item">Currently Borrowed By:</p><span>${data.currentLoan.studentName} (${data.currentLoan.studentID})</span><br><span><strong>Due Date:</strong> ${new Date(data.currentLoan.dueDate).toLocaleDateString()}</span></div>`;
+              }
+              trackingHTML += `<h4>History</h4><div id="trackingHistoryLog">`;
+              if(data.history && data.history.length > 0) {
+                  data.history.forEach(log => {
+                      trackingHTML += `<div><strong>${log.action}</strong> by ${log.studentName || 'N/A'} on ${new Date(log.timestamp).toLocaleString()}</div>`;
+                  });
+              } else {
+                  trackingHTML += `<div>No transaction history for this item.</div>`;
+              }
+              trackingHTML += `</div>`;
+              trackingDetailsContainer.innerHTML = trackingHTML;
+          } catch (error) {
+              trackingDetailsContainer.innerHTML = `<p style="color: var(--danger);">${error.message}</p>`;
+          }
+      }
+
+      async function processScan(triggeredInput) {
+          const mode = scanMode.value;
+          if (mode === 'Borrowing') {
+              const studentIdValue = studentIdInput.value.trim();
+              if (triggeredInput === studentIdInput && studentIdValue !== '') {
+                  currentBorrowingStudentId = studentIdValue;
+                  studentIdInput.readOnly = true;
+                  scanStatus.textContent = `Student ID ${currentBorrowingStudentId} captured. Now scan the item.`;
+                  itemIdGroup.style.display = 'block';
+                  itemIdPrefixInput.focus();
+                  return;
+              }
+              const itemIdValue = itemIdInput.value.trim();
+              if (triggeredInput === itemIdInput && itemIdValue !== '' && currentBorrowingStudentId) {
+                  await fetchAndDisplayItemDetails(itemIdValue);
+                  try {
+                     const response = await fetch('/api/borrow-by-barcode', {
+                          method: 'POST',
+                          headers: {'Content-Type': 'application/json'},
+                          body: JSON.stringify({ itemId: itemIdValue, studentID: currentBorrowingStudentId })
+                     });
+                     const result = await response.json();
+                     if (!response.ok) throw new Error(result.message || 'Failed to process borrowing.');
+                     scanStatus.textContent = result.message;
+                     scanStatus.className = 'status-box success';
+                     showToast(result.message, 'success');
+                     setTimeout(() => fetchAndDisplayItemDetails(itemIdValue), 500);
+                  } catch(error) {
+                     scanStatus.textContent = error.message;
+                     scanStatus.className = 'status-box error';
+                     showToast(error.message, 'error');
+                  } finally {
+                     setTimeout(resetScannerUI, 1500);
+                  }
+              }
+          } else { // Returning mode
+              const itemIdValue = itemIdInput.value.trim();
+              if (triggeredInput === itemIdInput && itemIdValue) {
+                  await fetchAndDisplayItemDetails(itemIdValue);
+                  try {
+                      const response = await fetch('/api/return-by-barcode', {
+                          method: 'POST',
+                          headers: {'Content-Type': 'application/json'},
+                          body: JSON.stringify({ itemId: itemIdValue })
+                      });
+                      const result = await response.json();
+                      if (!response.ok) throw new Error(result.message || 'Failed to process return.');
+                      scanStatus.textContent = result.message;
+                      scanStatus.className = 'status-box success';
+                      showToast(result.message, 'success');
+                      setTimeout(() => fetchAndDisplayItemDetails(itemIdValue), 500);
+                  } catch(error) {
+                      scanStatus.textContent = error.message;
+                      scanStatus.className = 'status-box error';
+                      showToast(error.message, 'error');
+                  } finally {
+                      itemIdInput.value = '';
+                      itemIdPrefixInput.value = '';
+                      itemIdPrefixInput.focus();
+                  }
+              }
+          }
+      }
+      
+      const updateDashboard = async () => {
+        try {
+            const response = await fetch('/api/inventory');
+            const data = await response.json();
+            const totalEquipment = data.reduce((sum, item) => sum + (item.quantity || 0), 0);
+            const borrowedItems = data.filter(item => item.status === 'In-Use').reduce((sum, item) => sum + (item.quantity || 0), 0);
+            const maintenanceItems = data.filter(item => item.status === 'Maintenance').length;
+            document.querySelector('#dashboard-content .counter[data-target]').setAttribute('data-target', totalEquipment);
+            document.querySelector('#dashboard-content article:nth-of-type(2) .counter').setAttribute('data-target', borrowedItems);
+            document.querySelector('#dashboard-content article:nth-of-type(3) .counter').setAttribute('data-target', maintenanceItems);
+            animateCounters();
+        } catch (error) {
+            showToast("Error fetching dashboard data.");
+        }
+      };
+      
+      const animateCounters = () => {
+          document.querySelectorAll("#dashboard-content .counter").forEach(counter => {
+              counter.innerText = '0';
+              const update = () => {
+                  const target = +counter.getAttribute("data-target");
+                  const count = +counter.innerText;
+                  const increment = Math.max(1, Math.ceil((target - count) / 10));
+                  if (count < target) {
+                      counter.innerText = `${Math.min(target, count + increment)}`;
+                      setTimeout(update, 40);
+                  } else { counter.innerText = target; }
+              };
+              update();
+          });
+      };
+      
+      const fetchInventory = async () => {
+        try {
+            const response = await fetch('/api/inventory');
+            if (!response.ok) throw new Error('Failed to fetch');
+            allInventoryData = await response.json();
+            renderTable(allInventoryData);
+        } catch (error) { showToast(error.message); }
+      };
+
+      const renderTable = (data) => {
+        inventoryTableBody.innerHTML = '';
+        if (data.length === 0) {
+            inventoryTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No equipment found.</td></tr>';
+            return;
+        }
+        data.forEach(item => {
+            const row = inventoryTableBody.insertRow();
+            row.innerHTML = `
+                <td>${item.itemId}</td><td>${item.name}</td><td>${item.category}</td>
+                <td>${item.quantity}</td><td>${item.location}</td>
+                <td>
+                    <select class="status-select" onchange="updateStatus(this, '${item.itemId}')">
+                        <option value="Available" ${item.status === 'Available' ? 'selected' : ''}>Available</option>
+                        <option value="In-Use" ${item.status === 'In-Use' ? 'selected' : ''}>In-Use</option>
+                        <option value="Maintenance" ${item.status === 'Maintenance' ? 'selected' : ''}>Maintenance</option>
+                    </select>
+                </td>
+                <td class="actions-cell">
+                    <button class="btn btn-edit" onclick="openEditModal('${item.itemId}')">Edit</button>
+                    <button class="btn btn-delete" onclick="confirmDelete('${item.itemId}')">Delete</button>
+                </td>`;
+        });
+      };
+
+      const handleAddItem = async (e) => {
+          e.preventDefault();
+          const newItem = {
+              itemId: document.getElementById('itemId').value,
+              name: document.getElementById('itemName').value,
+              category: document.getElementById('category').value,
+              quantity: parseInt(document.getElementById('quantity').value),
+              location: document.getElementById('location').value,
+          };
+          if (!newItem.category) {
+              showToast("Please select a category.");
+              return;
+          }
+          try {
+              const response = await fetch('/api/inventory', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(newItem)
+              });
+              if (!response.ok) throw new Error((await response.json()).message || 'Failed to add');
+              showToast('Equipment added!');
+              addForm.reset();
+              fetchInventory();
+          } catch (error) { showToast(`Error: ${error.message}`); }
+      };
+
+      const handleSearch = (e) => {
+          const searchTerm = e.target.value.toLowerCase();
+          const filteredData = allInventoryData.filter(item =>
+              Object.values(item).some(val => String(val).toLowerCase().includes(searchTerm))
+          );
+          renderTable(filteredData);
+      };
+
+      const handleUpdateItem = async (e) => {
+          e.preventDefault();
+          const itemId = document.getElementById('editItemId').value;
+          const updatedData = {
+              name: document.getElementById('editItemName').value,
+              category: document.getElementById('editCategory').value,
+              quantity: parseInt(document.getElementById('editQuantity').value),
+              location: document.getElementById('editLocation').value,
+          };
+          try {
+              const response = await fetch(`/api/inventory/${itemId}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(updatedData)
+              });
+              if (!response.ok) throw new Error('Failed to update');
+              showToast('Item updated successfully!');
+              modal.style.display = 'none';
+              fetchInventory();
+          } catch (error) { showToast(`Error: ${error.message}`); }
+      };
+
+      window.confirmDelete = async (itemId) => {
+          if (!confirm(`Are you sure you want to delete item ${itemId}?`)) return;
+          try {
+              const response = await fetch(`/api/inventory/${itemId}`, { method: 'DELETE' });
+              if (!response.ok) throw new Error('Failed to delete');
+              showToast('Item deleted successfully.');
+              fetchInventory();
+          } catch (error) { showToast(`Error: ${error.message}`); }
+      };
+
+      window.updateStatus = async (selectElement, itemId) => {
+          const newStatus = selectElement.value;
+          try {
+              const response = await fetch(`/api/inventory/${itemId}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ status: newStatus })
+              });
+              if (!response.ok) throw new Error('Failed to update status');
+              showToast(`Status for ${itemId} updated.`);
+          } catch (error) {
+              showToast(`Error: ${error.message}`);
+              fetchInventory();
+          }
+      };
+      
+      window.openEditModal = (itemId) => {
+          const item = allInventoryData.find(i => i.itemId === itemId);
+          if (item) {
+              document.getElementById('editItemId').value = item.itemId;
+              document.getElementById('editItemName').value = item.name;
+              document.getElementById('editCategory').value = item.category;
+              document.getElementById('editQuantity').value = item.quantity;
+              document.getElementById('editLocation').value = item.location;
+              modal.style.display = 'flex';
+          }
+      };
+      
+      const addNotification = (title, message) => {
+        notifications.unshift({ title, message, date: new Date(), read: false });
+        updateNotificationBadge();
+      };
+      
+      const updateNotificationBadge = () => {
+        const unreadCount = notifications.filter(n => !n.read).length;
+        notificationBadge.textContent = unreadCount;
+        notificationBadge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+      };
+      
+      const fetchAllRequests = async () => {
+          try {
+              const response = await fetch('/api/admin-requests');
+              if (!response.ok) throw new Error('Failed to fetch requests');
+              allRequestsData = await response.json();
+              
+              allRequestsData.forEach(req => {
+                if (req.status === 'Pending' && !seenRequestIds.has(req._id)) {
+                  addNotification('New Student Request', `${req.studentName} requested ${req.itemName}.`);
+                  seenRequestIds.add(req._id);
+                }
+              });
+
+              if (document.getElementById('requests-content').classList.contains('active')) {
+                  renderRequestsTable(allRequestsData);
+              }
+          } catch (error) {
+              showToast(error.message);
+              if (document.getElementById('requests-content').classList.contains('active')) {
+                  requestsTableBody.innerHTML = `<tr><td colspan="9" style="text-align:center;">Failed to load requests.</td></tr>`;
+              }
+          }
+      };
+
+      const renderRequestsTable = (data) => {
+          requestsTableBody.innerHTML = '';
+          const sortedData = [...data].sort((a, b) => new Date(b.requestDate) - new Date(a.requestDate));
+          if (sortedData.length === 0) {
+              requestsTableBody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No student requests found.</td></tr>`;
+              return;
+          }
+          sortedData.forEach(req => {
+              const row = requestsTableBody.insertRow();
+              const startDate = req.startDate ? new Date(req.startDate).toLocaleDateString() : 'N/A';
+              const dueDate = req.dueDate ? new Date(req.dueDate).toLocaleDateString() : 'N/A';
+              const today = new Date();
+              today.setHours(0,0,0,0);
+              const isPastDue = req.status === 'Approved' && new Date(req.dueDate) < today;
+              
+              let statusBadgeClass = `status-${req.status.replace(/[^a-zA-Z0-9]/g, '')}`;
+              let statusText = req.status;
+
+              if (isPastDue) {
+                  statusBadgeClass = 'status-PastDue';
+                  statusText = 'Past Due';
+              }
+
+              let actions = '';
+              if (req.status === 'Pending') {
+                  actions = `<button class="btn btn-approve" onclick="handleRequest('${req._id}', 'Approved', '${req.studentName}', '${req.itemName}')">Approve</button>
+                             <button class="btn btn-reject" onclick="handleRequest('${req._id}', 'Rejected', '${req.studentName}', '${req.itemName}')">Reject</button>`;
+              } else if (req.status === 'Approved' || isPastDue) {
+                  actions = `<button class="btn btn-return" onclick="handleRequest('${req._id}', 'Returned', '${req.studentName}', '${req.itemName}')">Return</button>`;
+              } else {
+                  actions = '—';
+              }
+          
+              row.innerHTML = `
+                  <td>${req.studentName}</td>
+                  <td>${req.itemId}</td>
+                  <td>${req.itemName}</td>
+                  <td>${startDate}</td>
+                  <td>${dueDate}</td>
+                  <td>${req.quantity}</td>
+                  <td>${req.reason || 'N/A'}</td>
+                  <td><span class="status-badge ${statusBadgeClass}">${statusText}</span></td>
+                  <td class="actions-cell">${actions}</td>`;
+          });
+      };
+      
+      const renderNotifications = () => {
+          notificationList.innerHTML = '';
+          if (notifications.length === 0) {
+              notificationList.innerHTML = '<p>No new notifications.</p>';
+          } else {
+              notifications.forEach(n => {
+                  const item = document.createElement('div');
+                  item.className = 'notification-item';
+                  item.innerHTML = `
+                      <div class="notification-title">${n.title}</div>
+                      <div class="notification-message">${n.message}</div>
+                      <div class="notification-time">${n.date.toLocaleString()}</div>
+                  `;
+                  notificationList.appendChild(item);
+              });
+          }
+          notifications.forEach(n => n.read = true);
+          updateNotificationBadge();
+      };
+
+      window.handleRequest = async (requestId, newStatus, studentName, itemName) => {
+          try {
+              const response = await fetch(`/api/update-request/${requestId}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ status: newStatus })
+              });
+              const result = await response.json();
+              if (!response.ok) throw new Error(result.message || `Failed to ${newStatus.toLowerCase()} request`);
+              showToast(result.message || `Request ${newStatus.toLowerCase()} successfully.`);
+              addNotification(`Request ${newStatus}`, `You have ${newStatus.toLowerCase()} ${studentName}'s request for ${itemName}.`);
+              fetchAllRequests();
+          } catch (error) {
+              showToast(`Error: ${error.message}`);
+          }
+      };
+
+      window.showToast = (message) => {
+          const container = document.getElementById('toast-container');
+          const toast = document.createElement('div');
+          toast.className = 'toast';
+          toast.textContent = message;
+          container.appendChild(toast);
+          setTimeout(() => { 
+              toast.style.opacity = '0';
+              setTimeout(() => toast.remove(), 500);
+          }, 3000);
+      };
+
+      initializeApp();
+    });
+  </script>
+</body>
+</html>
