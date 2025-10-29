@@ -5,6 +5,8 @@ const session = require("express-session");
 const bcrypt = require("bcrypt");
 const path = require('path');
 const ws = require("ws");
+const passport = require('passport');
+const MicrosoftStrategy = require('passport-microsoft').Strategy;
 
 
 // ================== APP INIT ==================
@@ -19,9 +21,12 @@ app.use(session({
     secret: "labsystem-secret-key-super-secure",
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }
+    cookie: { secure: false } // Set to true if using HTTPS
 }));
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 
 // ================== DB CONNECTION ==================
@@ -41,7 +46,9 @@ const userSchema = new mongoose.Schema({
     studentID: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     gradeLevel: { type: String, required: true },
-    password: { type: String, required: true },
+    // MODIFIED: Password is no longer required, to allow for student registration
+    // without one. Admins will still have passwords.
+    password: { type: String, required: false },
     role: { type: String, default: "student" },
     status: { type: String, enum: ['Pending', 'Approved'], default: 'Pending' }
 });
@@ -71,7 +78,7 @@ const requestSchema = new mongoose.Schema({
     requestDate: { type: Date, default: Date.now },
     status: { type: String, enum: ['Pending', 'Approved', 'Rejected', 'Returned'], default: 'Pending' },
     category: { type: String, required: true },
-    isDeleted: { type: Boolean, default: false } // MODIFIED: Added for soft delete
+    isDeleted: { type: Boolean, default: false }
 });
 
 
@@ -151,7 +158,6 @@ const categoryAdminMap = {
 };
 
 
-// NEW: Mapping of admin usernames to the categories they are allowed to manage.
 const adminCategoryMapping = {
     'admin': ['General', 'Office Supplies'],
     'admin2': ['Science', 'Sports'],
@@ -235,7 +241,6 @@ const isAdmin = (req, res, next) => {
     res.status(403).json({ message: "Access denied." });
 };
 const isSuperAdmin = (req, res, next) => {
-    // FIX #2: Make the username check case-insensitive to prevent auth failures.
     if (req.session.user && req.session.user.username.toLowerCase() === 'admin2') {
         return next();
     }
@@ -256,7 +261,13 @@ app.post("/login", async (req, res) => {
     const { username, password } = req.body;
     try {
         const user = await User.findOne({ username: new RegExp(`^${username}$`, 'i') });
-        if (!user || !(await bcrypt.compare(password, user.password))) {
+        
+        // MODIFIED: Check if user exists OR if they have no password (student)
+        if (!user || !user.password) {
+             return res.status(401).send("Invalid credentials. Students must use Microsoft login.");
+        }
+        
+        if (!(await bcrypt.compare(password, user.password))) {
             return res.status(401).send("Invalid credentials.");
         }
        
@@ -272,34 +283,66 @@ app.post("/login", async (req, res) => {
             fullName: `${user.firstName} ${user.lastName}`
         };
        
-        if (user.role === 'admin') {
-            const adminUsername = user.username.toLowerCase();
-            if (adminUsername === 'admin3') return res.redirect('/admin3');
-            if (adminUsername === 'admin2') return res.redirect('/admin2');
-            if (adminUsername === 'admin4') return res.redirect('/admin4');
-            return res.redirect('/admin');
-        } else if (user.role === 'student') {
-            return res.redirect('/dashboard');
-        } else {
-            return res.status(403).send("Unknown user role.");
-        }
+        req.session.save((err) => {
+            if (err) {
+                console.error("Session save error:", err);
+                return res.status(500).send("Server error during login.");
+            }
+            if (user.role === 'admin') {
+                const adminUsername = user.username.toLowerCase();
+                if (adminUsername === 'admin3') return res.redirect('/admin3');
+                if (adminUsername === 'admin2') return res.redirect('/admin2');
+                if (adminUsername === 'admin4') return res.redirect('/admin4');
+                return res.redirect('/admin');
+            } else if (user.role === 'student') {
+                // This path is now unlikely for form login, but safe to keep.
+                return res.redirect('/dashboard');
+            } else {
+                return res.status(403).send("Unknown user role.");
+            }
+        });
     } catch (error) {
         console.error("Login Error:", error);
         return res.status(500).send("Server error during login.");
     }
 });
+
 app.post("/register", async (req, res) => {
     try {
-        const { lastName, firstName, username, studentID, email, gradeLevel, password } = req.body;
-        if (!lastName || !firstName || !username || !studentID || !email || !gradeLevel || !password) {
+        // MODIFIED: Removed 'password' from destructured body
+        const { lastName, firstName, username, studentID, email, gradeLevel } = req.body;
+        
+        // MODIFIED: Removed 'password' from validation
+        if (!lastName || !firstName || !username || !studentID || !email || !gradeLevel) {
             return res.status(400).send("All fields are required.");
         }
+        
+        // ================== NEW VALIDATION ==================
+        // Add this check to validate the email domain
+        if (!email.toLowerCase().endsWith("@dlsud.edu.ph")) {
+            return res.status(400).send("Invalid email. Only @dlsud.edu.ph addresses are allowed.");
+        }
+        // ====================================================
+        
         const existingUser = await User.findOne({ $or: [{ username: new RegExp(`^${username}$`, 'i') }, { email: new RegExp(`^${email}$`, 'i') }, { studentID: new RegExp(`^${studentID}$`, 'i') }] });
         if (existingUser) {
             return res.status(409).send("User with this Username, Email, or Student ID already exists.");
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ lastName, firstName, username, studentID, email, gradeLevel, password: hashedPassword, role: 'student', status: 'Pending' });
+        
+        // MODIFIED: Removed password hashing
+        // const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // MODIFIED: Removed 'password' field from new User object
+        const newUser = new User({ 
+            lastName, 
+            firstName, 
+            username, 
+            studentID, 
+            email, 
+            gradeLevel, 
+            role: 'student', 
+            status: 'Pending' 
+        });
         await newUser.save();
 
 
@@ -320,9 +363,104 @@ app.post("/register", async (req, res) => {
         res.status(500).send("Server error during registration.");
     }
 });
+
 app.get('/logout', (req, res) => {
     req.session.destroy(() => res.redirect('/'));
 });
+
+
+// ================== MICROSOFT OAUTH (REAL) ==================
+const MICROSOFT_CLIENT_ID = "1c4d42a9-a6fa-4fb0-bac7-a3a449b11a94";
+const MICROSOFT_CLIENT_SECRET = "~Sm8Q~9FaHYq~0fe88LpZwiQ~AMhWjc.XwBSfcfT";
+const MICROSOFT_TENANT_ID = "08195d68-0190-47b8-8344-b172f23ce9c5";
+const CALLBACK_URL = "http://localhost:3000/auth/microsoft/callback";
+
+passport.use(new MicrosoftStrategy({
+    clientID: MICROSOFT_CLIENT_ID,
+    clientSecret: MICROSOFT_CLIENT_SECRET,
+    callbackURL: CALLBACK_URL,
+    scope: ['user.read'],
+    tenant: MICROSOFT_TENANT_ID
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+        const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
+        if (!email) {
+            return done(null, false, { message: 'No email returned from Microsoft.' });
+        }
+
+        const user = await User.findOne({ email: new RegExp(`^${email}$`, 'i') });
+        
+        if (!user) {
+            return done(null, false, { message: 'This Microsoft account is not registered in our system.' });
+        }
+        
+        if (user.status === 'Pending') {
+            return done(null, false, { message: 'Your account is still pending admin approval.' });
+        }
+        
+        return done(null, user);
+
+    } catch (err) {
+        return done(err);
+    }
+  }
+));
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+});
+
+
+app.get('/auth/microsoft',
+  passport.authenticate('microsoft', {
+    prompt: 'select_account',
+  })
+);
+
+app.get('/auth/microsoft/callback', 
+  passport.authenticate('microsoft', { 
+    failureRedirect: '/?error=ms_login_failed' 
+  }),
+  (req, res) => {
+    const user = req.user;
+
+    req.session.user = {
+        id: user._id,
+        username: user.username,
+        role: user.role,
+        fullName: `${user.firstName} ${user.lastName}`
+    };
+   
+    req.session.save((err) => {
+        if (err) {
+            console.error("Session save error:", err);
+            return res.status(500).send("Server error during login.");
+        }
+
+        if (user.role === 'admin') {
+            const adminUsername = user.username.toLowerCase();
+            if (adminUsername === 'admin3') return res.redirect('/admin3');
+            if (adminUsername === 'admin2') return res.redirect('/admin2');
+            if (adminUsername === 'admin4') return res.redirect('/admin4');
+            return res.redirect('/admin');
+        } else if (user.role === 'student') {
+            return res.redirect('/dashboard');
+        } else {
+            return res.status(403).send("Unknown user role.");
+        }
+    });
+  }
+);
 
 
 // === ACCOUNT UPDATE ROUTES ===
@@ -394,6 +532,11 @@ app.put('/api/account/password', isAuthenticated, async (req, res) => {
         if (!user) {
             return res.status(404).send('User not found.');
         }
+        
+        // MODIFIED: Check if user has a password. If not, they can't use this feature.
+        if (!user.password) {
+            return res.status(403).send('Password cannot be changed for this account. Please use Microsoft login.');
+        }
 
 
         const isMatch = await bcrypt.compare(currentPassword, user.password);
@@ -435,13 +578,8 @@ const createCrudRoutes = (apiPath, Model) => {
             const savedItem = await new Model(newItem).save();
             await logAdminAction(req, 'Create Item', `Created item '${savedItem.name}' (ID: ${savedItem.itemId})`);
             
-            // Log item creation in its history
             await new ItemHistory({ itemId: savedItem.itemId, action: 'Created' }).save();
-
-            // 🔄 Broadcast refresh to all clients
             broadcastRefresh();
-
-
             res.status(201).json(savedItem);
         } catch (e) {
             res.status(500).json({ message: "Error adding item." });
@@ -460,33 +598,23 @@ const createCrudRoutes = (apiPath, Model) => {
             const updated = await Model.findOneAndUpdate({ itemId: req.params.itemId }, { $set: updateData }, { new: true });
             await logAdminAction(req, 'Update Item', `Updated item '${updated.name}' (ID: ${updated.itemId})`);
 
-
-            // 🔄 Broadcast refresh to all clients
             broadcastRefresh();
-
-
             res.json(updated);
         } catch (e) {
             res.status(500).json({ message: "Error updating item." });
         }
     });
     app.delete(`${apiPath}/:itemId`, isAdmin, async (req, res) => {
-        console.log(`DELETE called on ${apiPath}/${req.params.itemId}`); // Add this line
+        console.log(`DELETE called on ${apiPath}/${req.params.itemId}`);
         try {
             const deleted = await Model.findOneAndDelete({ itemId: req.params.itemId });
             if (!deleted) return res.status(404).json({ message: "Item not found." });
             await logAdminAction(req, 'Delete Item', `Deleted item '${deleted.name}' (ID: ${deleted.itemId})`);
 
-
-            // Delete all requests and history for this item
             await ItemRequest.deleteMany({ itemId: req.params.itemId });
             await ItemHistory.deleteMany({ itemId: req.params.itemId });
 
-
-            // 🔄 Broadcast refresh to all clients
             broadcastRefresh();
-
-
             res.json({ message: "Item deleted." });
         } catch (e) {
             res.status(500).json({ message: "Error deleting item." });
@@ -556,15 +684,6 @@ app.post('/api/request-item', isAuthenticated, async (req, res) => {
             item.originalQuantity = item.quantity;
         }
 
-        // Do not decrease quantity here for 'Pending' requests. Only for direct borrowing.
-        // item.quantity -= quantity;
-        // if (item.quantity === 0 && item.status === 'Available') {
-        //     item.status = 'In-Use';
-        // }
-        // await item.save();
-        // await checkStockAndNotify(item);
-
-
         const newRequest = new ItemRequest({ itemId, itemName, studentId, studentName, studentID: user.studentID, quantity, startDate, dueDate, reason, category });
         await newRequest.save();
 
@@ -581,11 +700,8 @@ app.post('/api/request-item', isAuthenticated, async (req, res) => {
                 await adminNotification.save();
             }
         }
-
-
-        // 🔄 Broadcast refresh to all clients
-        broadcastRefresh();
        
+        broadcastRefresh();
         res.status(201).json(newRequest);
     } catch (e) {
         console.error("Request Error:", e);
@@ -604,14 +720,7 @@ app.delete('/api/cancel-request/:id', isAuthenticated, async (req, res) => {
         const request = await ItemRequest.findOneAndDelete({ _id: req.params.id, studentId: req.session.user.id, status: 'Pending' });
         if (!request) return res.status(404).json({ message: 'Request not found or cannot be cancelled.' });
        
-        // When cancelling a pending request, inventory doesn't need to be reverted as it was never taken.
-        // await findAndUpdateItem(request.itemId, request.quantity);
-
-
-        // 🔄 Broadcast refresh to all clients
         broadcastRefresh();
-
-
         res.json({ message: 'Request cancelled.' });
     } catch (e) {
         console.error("Cancellation Error:", e);
@@ -624,17 +733,15 @@ app.delete('/api/cancel-request/:id', isAuthenticated, async (req, res) => {
 app.post('/api/borrow-by-barcode', isAdmin, async (req, res) => {
     try {
         const { itemId, studentID } = req.body;
-        const adminUsername = req.session.user.username; // Get current admin
+        const adminUsername = req.session.user.username;
 
         const user = await User.findOne({ studentID });
         if (!user) return res.status(404).json({ message: `Student with ID ${studentID} not found.` });
 
-        // MODIFIED: Use the admin-aware function
         const item = await findItemInAllowedCategory(itemId, adminUsername);
         if (!item) return res.status(404).json({ message: `Item with ID ${itemId} not found in your managed inventories.` });
         if (item.quantity < 1) return res.status(400).json({ message: `Item "${item.name}" is out of stock.` });
 
-        // MODIFIED: Use the admin-aware function
         const updatedItem = await findAndUpdateItemForAdmin(itemId, -1, adminUsername);
         await checkStockAndNotify(updatedItem);
 
@@ -664,9 +771,8 @@ app.post('/api/borrow-by-barcode', isAdmin, async (req, res) => {
 app.post('/api/return-by-barcode', isAdmin, async (req, res) => {
     try {
         const { itemId } = req.body;
-        const adminUsername = req.session.user.username; // Get current admin
+        const adminUsername = req.session.user.username;
         
-        // MODIFIED: Check if the item belongs to the admin before processing the return.
         const item = await findItemInAllowedCategory(itemId, adminUsername);
         if (!item) return res.status(404).json({ message: `Item with ID ${itemId} not found in your managed inventories.` });
 
@@ -676,7 +782,6 @@ app.post('/api/return-by-barcode', isAdmin, async (req, res) => {
         request.status = 'Returned';
         await request.save();
 
-        // MODIFIED: Use the admin-aware function
         await findAndUpdateItemForAdmin(itemId, 1, adminUsername);
         await new ItemHistory({ itemId, action: 'Returned', studentName: request.studentName, studentID: request.studentID }).save();
 
@@ -693,9 +798,8 @@ app.post('/api/return-by-barcode', isAdmin, async (req, res) => {
 app.get('/api/item-details/:itemId', isAdmin, async (req, res) => {
     try {
         const { itemId } = req.params;
-        const adminUsername = req.session.user.username; // Get current admin
+        const adminUsername = req.session.user.username;
 
-        // MODIFIED: Use the admin-aware function
         const item = await findItemInAllowedCategory(itemId, adminUsername);
         if (!item) return res.status(404).json({ message: "Item not found in your managed inventories." });
 
@@ -730,13 +834,14 @@ app.post('/api/users', isAuthenticated, isSuperAdmin, async (req, res) => {
         if (existingUser) {
             return res.status(409).send("User with this Username, Email, or Student ID already exists.");
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        let hashedPassword = null;
+        // MODIFIED: Only hash password if one is provided (for admins)
+        if (password && role === 'admin') {
+            hashedPassword = await bcrypt.hash(password, 10);
+        }
 
-
-        // FIX #1: Explicitly set status for admin-created users.
-        // Admins are approved by default; students must be approved manually.
         const status = role === 'admin' ? 'Approved' : 'Pending';
-
 
         const newUser = new User({
             lastName,
@@ -745,18 +850,14 @@ app.post('/api/users', isAuthenticated, isSuperAdmin, async (req, res) => {
             studentID,
             email,
             gradeLevel: role === 'student' ? gradeLevel || 'N/A' : 'N/A',
-            password: hashedPassword,
+            password: hashedPassword, // Will be null for students
             role,
-            status // Set the status explicitly
+            status
         });
         await newUser.save();
         await logAdminAction(req, 'Create User', `Created user '${username}' with role '${role}'.`);
 
-
-        // 🔄 Broadcast refresh to all clients
         broadcastRefresh();
-
-
         res.status(201).json({ message: 'User created successfully.'});
     } catch (error) {
         res.status(500).send("Server error during user creation.");
@@ -787,11 +888,7 @@ app.put('/api/users/:id/reset-password', isAuthenticated, isSuperAdmin, async (r
         if (!user) return res.status(404).send('User not found.');
         await logAdminAction(req, 'Reset User Password', `Reset password for user '${user.username}'.`);
 
-
-        // 🔄 Broadcast refresh to all clients
         broadcastRefresh();
-
-
         res.json({ message: 'User password reset successfully.' });
     } catch(error) {
         res.status(500).send('Error resetting password.');
@@ -802,14 +899,10 @@ app.put('/api/users/:id/reset-password', isAuthenticated, isSuperAdmin, async (r
 app.delete('/api/users/:id', isAuthenticated, isSuperAdmin, async (req, res) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id);
-        if (!user) return res.status(404).send('User not found.');
+        if (!user) return res.status(44).send('User not found.');
         await logAdminAction(req, 'Delete User', `Deleted user '${user.username}'.`);
 
-
-        // 🔄 Broadcast refresh to all clients
         broadcastRefresh();
-
-
         res.json({ message: 'User deleted successfully.'});
     } catch(error) {
         res.status(500).send('Error deleting user.');
@@ -861,11 +954,7 @@ app.put('/api/profile-update-requests/:id/approve', isAuthenticated, isSuperAdmi
         });
         await studentNotification.save();
 
-
-        // 🔄 Broadcast refresh to all clients
         broadcastRefresh();
-
-
         res.json({ message: 'Profile update approved and user details updated.' });
     } catch (error) {
         res.status(500).json({ message: 'Server error during approval.' });
@@ -889,11 +978,7 @@ app.put('/api/profile-update-requests/:id/reject', isAuthenticated, isSuperAdmin
         });
         await studentNotification.save();
 
-
-        // 🔄 Broadcast refresh to all clients
         broadcastRefresh();
-
-
         res.json({ message: 'Profile update request rejected.' });
     } catch (error) {
         res.status(500).json({ message: 'Server error during rejection.' });
@@ -901,16 +986,10 @@ app.put('/api/profile-update-requests/:id/reject', isAuthenticated, isSuperAdmin
 });
 
 
-// NEW: Super Admin endpoints for registration requests
 app.get('/api/pending-registrations', isAuthenticated, isSuperAdmin, async (req, res) => {
     try {
         const pendingUsers = await User.find({ status: 'Pending', role: 'student' }).sort({ _id: -1 });
-
-
-        // 🔄 Broadcast refresh to all clients
         broadcastRefresh();
-
-
         res.json(pendingUsers);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching pending registrations.' });
@@ -934,11 +1013,7 @@ app.put('/api/registrations/:userId/approve', isAuthenticated, isSuperAdmin, asy
         });
         await studentNotification.save();
 
-
-        // 🔄 Broadcast refresh to all clients
         broadcastRefresh();
-
-
         res.json({ message: `User ${user.username} has been approved.` });
     } catch (error) {
         res.status(500).json({ message: 'Server error during approval.' });
@@ -954,11 +1029,8 @@ app.delete('/api/registrations/:userId/reject', isAuthenticated, isSuperAdmin, a
         }
        
         await logAdminAction(req, 'Reject Registration', `Rejected and deleted registration for user '${user.username}'.`);
-
-
-        // 🔄 Broadcast refresh to all clients
-        broadcastRefresh();
        
+        broadcastRefresh();
         res.json({ message: `Registration for ${user.username} has been rejected and deleted.` });
     } catch (error) {
         res.status(500).json({ message: 'Server error during rejection.' });
@@ -971,7 +1043,7 @@ app.get('/api/admin-requests', isAdmin, async (req, res) => {
     try {
         const requests = await ItemRequest.find({
             category: { $in: ['General', 'Office Supplies'] },
-            isDeleted: { $ne: true } // MODIFIED: Exclude soft-deleted
+            isDeleted: { $ne: true }
         }).sort({ requestDate: -1 });
         res.json(requests);
     } catch (e) {
@@ -984,7 +1056,7 @@ app.get('/api/admin2-requests', isAdmin, async (req, res) => {
     try {
         const requests = await ItemRequest.find({
             category: { $in: ['Science', 'Sports'] },
-            isDeleted: { $ne: true } // MODIFIED: Exclude soft-deleted
+            isDeleted: { $ne: true }
         }).sort({ requestDate: -1 });
         res.json(requests);
     } catch (e) {
@@ -997,7 +1069,7 @@ app.get('/api/admin3-requests', isAdmin, async (req, res) => {
     try {
         const requests = await ItemRequest.find({
             category: { $in: ['Tables & Chairs', 'Computer Lab', 'Food Lab', 'Music Instruments'] },
-            isDeleted: { $ne: true } // MODIFIED: Exclude soft-deleted
+            isDeleted: { $ne: true }
         }).sort({ requestDate: -1 });
         res.json(requests);
     } catch (e) {
@@ -1010,7 +1082,7 @@ app.get('/api/admin-requests/Robotics', isAdmin, async (req, res) => {
     try {
         const requests = await ItemRequest.find({
             category: 'Robotics',
-            isDeleted: { $ne: true } // MODIFIED: Exclude soft-deleted
+            isDeleted: { $ne: true }
         }).sort({ requestDate: -1 });
         res.json(requests);
     } catch (e) {
@@ -1019,7 +1091,6 @@ app.get('/api/admin-requests/Robotics', isAdmin, async (req, res) => {
 });
 
 
-// NEW: Endpoint to get deleted requests for a specific admin's categories
 app.get('/api/deleted-requests', isAdmin, async (req, res) => {
     try {
         const adminUsername = req.session.user.username.toLowerCase();
@@ -1058,8 +1129,7 @@ app.put('/api/edit-request/:id', isAdmin, async (req, res) => {
 
 
             if (requestIsActive) {
-                // This logic is complex and might not apply to pending requests.
-                // Re-evaluating for correctness. For now, assume this logic is for approved items.
+                // ...
             }
         }
 
@@ -1071,11 +1141,8 @@ app.put('/api/edit-request/:id', isAdmin, async (req, res) => {
        
         await request.save();
         await logAdminAction(req, 'Edit Request', `Edited details for request ID ${request._id} from student ${request.studentName}.`);
-
-
-        // 🔄 Broadcast refresh to all clients
-        broadcastRefresh();
        
+        broadcastRefresh();
         res.json({ message: 'Request updated successfully!', request });
 
 
@@ -1086,7 +1153,6 @@ app.put('/api/edit-request/:id', isAdmin, async (req, res) => {
 });
 
 
-// NEW: Soft delete a request
 app.put('/api/requests/:id/delete', isAdmin, async (req, res) => {
     try {
         const request = await ItemRequest.findByIdAndUpdate(req.params.id, { isDeleted: true }, { new: true });
@@ -1100,11 +1166,10 @@ app.put('/api/requests/:id/delete', isAdmin, async (req, res) => {
 });
 
 
-// NEW: Restore a request
 app.put('/api/requests/:id/restore', isAdmin, async (req, res) => {
     try {
         const request = await ItemRequest.findByIdAndUpdate(req.params.id, { isDeleted: false }, { new: true });
-        if (!request) return res.status(404).json({ message: 'Request not found.' });
+        if (!request) return res.status(44).json({ message: 'Request not found.' });
         await logAdminAction(req, 'Restore Request', `Restored request ID ${request._id} for '${request.itemName}'.`);
         broadcastRefresh();
         res.json({ message: 'Request restored successfully.' });
@@ -1114,7 +1179,6 @@ app.put('/api/requests/:id/restore', isAdmin, async (req, res) => {
 });
 
 
-// NEW: Permanently delete a request
 app.delete('/api/requests/:id/permanent', isAdmin, async (req, res) => {
     try {
         const request = await ItemRequest.findByIdAndDelete(req.params.id);
@@ -1128,7 +1192,6 @@ app.delete('/api/requests/:id/permanent', isAdmin, async (req, res) => {
 });
 
 
-// NEW: Helper to find an item and its model, but only if it's in an admin's allowed categories
 const findModelAndItemForAdmin = async (itemId, adminUsername) => {
     const allowedCategories = adminCategoryMapping[adminUsername.toLowerCase()];
     if (!allowedCategories) return { item: null, Model: null };
@@ -1142,7 +1205,6 @@ const findModelAndItemForAdmin = async (itemId, adminUsername) => {
     return { item: null, Model: null };
 };
 
-// NEW: Admin-aware version of findAndUpdateItem
 const findAndUpdateItemForAdmin = async (itemId, change, adminUsername) => {
     const { item, Model } = await findModelAndItemForAdmin(itemId, adminUsername);
     if (!item) return null;
@@ -1152,12 +1214,10 @@ const findAndUpdateItemForAdmin = async (itemId, change, adminUsername) => {
     }
     item.quantity += change;
 
-    // Logic to prevent quantity from exceeding original on return
     if (change > 0 && item.quantity > item.originalQuantity) {
         item.quantity = item.originalQuantity;
     }
 
-    // Status update logic
     if (item.status === 'In-Use' && item.quantity > 0) {
         item.status = 'Available';
     } else if (item.quantity === 0) {
@@ -1168,7 +1228,6 @@ const findAndUpdateItemForAdmin = async (itemId, change, adminUsername) => {
     return item;
 };
 
-// NEW: Admin-aware version of findItem
 const findItemInAllowedCategory = async (itemId, adminUsername) => {
     const { item } = await findModelAndItemForAdmin(itemId, adminUsername);
     return item;
@@ -1223,11 +1282,7 @@ app.put('/api/update-request/:id', isAdmin, async (req, res) => {
         });
         await newNotification.save();
 
-
-        // 🔄 Broadcast refresh to all clients
         broadcastRefresh();
-
-
         res.json({ message: `Request status updated to ${status}.`, request });
 
 
@@ -1266,12 +1321,9 @@ app.post('/api/notifications/mark-read', isAuthenticated, async (req, res) => {
             { $set: { isRead: true } }
         );
 
-
-        // Only broadcast if any notifications were updated
         if (result.modifiedCount > 0) {
             broadcastRefresh();
         }
-
 
         res.status(200).send('Notifications marked as read');
     } catch (error) {
@@ -1300,14 +1352,9 @@ app.post('/api/reports', isAdmin, async (req, res) => {
         const newReport = new ReportHistory({ reportType, generatedBy: req.session.user.username });
         await newReport.save();
         
-        // MODIFIED: Also log this action in the main history log
         await logAdminAction(req, 'Generate Report', `Generated a ${reportType} report.`);
 
-
-        // 🔄 Broadcast refresh to all clients
         broadcastRefresh();
-
-
         res.status(201).json(newReport);
     } catch (e) {
         res.status(500).json({ message: 'Error saving report.' });
@@ -1347,7 +1394,7 @@ wss.on("connection", (socket) => {
 
 // Function to broadcast a refresh event
 const broadcastRefresh = () => {
-    console.log("Broadcasting refresh to all WebSocket clients"); // Add this line
+    console.log("Broadcasting refresh to all WebSocket clients");
     wss.clients.forEach((client) => {
         if (client.readyState === ws.OPEN) {
             client.send(JSON.stringify({ type: "refresh" }));

@@ -217,6 +217,37 @@
             background-color: #00b363;
         }
 
+        /* NEW: Microsoft Button Styles */
+        .microsoft-btn {
+            background-color: #ffffff;
+            color: #5e5e5e;
+            border: 1px solid #8c8c8c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            text-transform: none;
+            letter-spacing: 0;
+            font-weight: 500;
+        }
+        .microsoft-btn img {
+            width: 20px;
+            height: 20px;
+        }
+        .microsoft-btn:hover {
+            background-color: #f2f2f2;
+            transform: translateY(-2px);
+        }
+        .dark-mode .microsoft-btn {
+            background-color: #383838;
+            border-color: #555;
+            color: var(--text-color-dark);
+        }
+        .dark-mode .microsoft-btn:hover {
+            background-color: #444;
+        }
+
         p {
             margin-top: 25px;
             font-size: 14px;
@@ -392,6 +423,12 @@
                         <input type="password" id="loginPassword" name="password" required placeholder="Enter your password">
                     </div>
                     <button type="submit">Login</button>
+                    
+                    <p style="text-align: center; margin: 20px 0 10px; font-weight: 600;">OR</p>
+                    <button type="button" id="microsoftLoginBtn" class="microsoft-btn">
+                        <img src="https://api.iconify.design/logos:microsoft-icon.svg" alt="Microsoft logo">
+                        Login with Microsoft
+                    </button>
                 </form>
                 <p style="display: flex; justify-content: space-between; margin-top: 15px;">
                     <a href="#" id="show-forgot-password">Forgot Password?</a>
@@ -427,18 +464,6 @@
                         <option value="11">Grade 11</option>
                         <option value="12">Grade 12</option>
                     </select>
-
-                    <label for="password">Password:</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="password" name="password" required placeholder="Enter a secure password">
-                        <img src="https://api.iconify.design/mdi:eye-outline.svg" class="eye-icon" id="togglePassword" alt="Toggle password visibility">
-                    </div>
-
-                    <label for="confirmPassword">Confirm Password:</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Re-enter your password">
-                        <img src="https://api.iconify.design/mdi:eye-outline.svg" class="eye-icon" id="toggleConfirm" alt="Toggle password visibility">
-                    </div>
 
                     <button type="submit">Register</button>
                 </form>
@@ -528,13 +553,12 @@
         const contactForm = document.getElementById('contactForm');
         const forgotPasswordForm = document.getElementById('forgotPasswordForm');
         
-        const togglePassword = document.getElementById("togglePassword");
-        const passwordInput = document.getElementById("password");
-        const toggleConfirm = document.getElementById("toggleConfirm");
-        const confirmPasswordInput = document.getElementById("confirmPassword");
+        // REMOVED: consts for password and confirm password fields
         
         const modeToggle = document.getElementById("mode-toggle");
         const modeIcon = document.getElementById("mode-icon");
+        
+        const microsoftLoginBtn = document.getElementById('microsoftLoginBtn');
         
         const showToast = (message) => {
             const container = document.getElementById('toast-container');
@@ -552,6 +576,17 @@
                 setTimeout(() => toast.remove(), 500);
             }, 3000);
         };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        if (error) {
+            if (error === 'ms_login_failed') {
+                showToast("Microsoft login failed. Your email is not registered in our system.");
+            } else if (error === 'ms_login_pending') {
+                showToast("Microsoft login successful, but your account is still pending approval.");
+            }
+            window.history.replaceState({}, document.title, "/");
+        }
 
         const switchSection = (targetId) => {
             sections.forEach(section => {
@@ -613,10 +648,9 @@
                     : "https://api.iconify.design/mdi:eye-outline.svg";
             });
         }
-
-        createPasswordToggle(togglePassword, passwordInput);
-        createPasswordToggle(toggleConfirm, confirmPasswordInput);
         
+        // REMOVED: Toggles for register password fields
+
         const loginPasswordInput = document.getElementById("loginPassword");
         const loginPasswordWrapper = document.querySelector('#login-section .password-wrapper');
         if (loginPasswordWrapper && loginPasswordInput) {
@@ -675,10 +709,15 @@
                 return;
             }
             
-            if (passwordInput.value !== confirmPasswordInput.value) {
-                showToast("Passwords do not match! Please try again.");
+            // ================== NEW VALIDATION ==================
+            const emailInput = document.getElementById("email");
+            if (!emailInput.value.toLowerCase().endsWith("@dlsud.edu.ph")) {
+                showToast("Invalid email. Please use your @dlsud.edu.ph address.");
                 return;
             }
+            // ====================================================
+            
+            // REMOVED: Password match check
 
             const formData = new FormData(registerForm);
             const data = Object.fromEntries(formData.entries());
@@ -710,12 +749,16 @@
 
         forgotPasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // This is a placeholder for a real API call.
-            // In a real application, you would send the email to your backend.
             showToast('If an account with that email exists, a password reset link has been sent.');
             forgotPasswordForm.reset();
             showLogin();
         });
+        
+        if (microsoftLoginBtn) {
+            microsoftLoginBtn.addEventListener('click', () => {
+                window.location.href = '/auth/microsoft';
+            });
+        }
     });
 </script>
 </body>

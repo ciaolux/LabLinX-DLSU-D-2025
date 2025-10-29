@@ -165,13 +165,38 @@
         .status-Approved { background-color: var(--success); }
         .status-Rejected { background-color: var(--danger); }
         .status-Returned { background-color: #6c757d; }
-        .actions-cell { display: flex; gap: 10px; padding: 15px; width: auto; }
+        
+        /* --- MODIFIED RULE --- */
+        .actions-cell { 
+            display: flex; 
+            gap: 10px; 
+            padding: 12px 15px; /* Matches other table cell padding */
+            width: auto; 
+            align-items: center; /* This vertically centers all buttons */
+        }
+        
+        /* === FIX ADDED === */
+        /* This rule targets only the requests table to stack its 3 buttons */
+        #requestsTable .actions-cell {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        /* === END FIX === */
+        
         .btn { padding: 6px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; transition: opacity 0.2s; white-space: nowrap; }
         .btn:hover { opacity: 0.85; }
         .btn svg { width: 14px; height: 14px; }
         .btn-edit { background-color: var(--success); color: white; }
         .btn-delete { background-color: var(--danger); color: white; }
         .btn-restore { background-color: var(--info); color: white; }
+
+        /* --- ADDED RULE --- */
+        #toggleTrashViewBtn {
+            padding: 6px 12px; /* Makes button padding smaller */
+            font-size: 0.9rem; /* Makes button text smaller */
+        }
+        
         #notification-list .notification-item { background-color: var(--card-bg-light); border-left: 5px solid var(--primary-light); margin-bottom: 1rem; padding: 1rem; border-radius: 5px; box-shadow: var(--shadow); }
         body.dark #notification-list .notification-item { background-color: var(--card-bg-dark); border-left-color: var(--accent-gold); }
         #notification-list .notification-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 0.25rem; }
