@@ -25,6 +25,8 @@
             --danger: #dc3545;
             --warning: #f0ad4e;
             --info: #17a2b8;
+            /* --- ADDED: Calibration from admin_panel4.html --- */
+            --calibration: #9370DB; 
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --font-family: "Avenir", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
@@ -165,38 +167,15 @@
         .status-Approved { background-color: var(--success); }
         .status-Rejected { background-color: var(--danger); }
         .status-Returned { background-color: #6c757d; }
-        
-        /* --- MODIFIED RULE --- */
-        .actions-cell { 
-            display: flex; 
-            gap: 10px; 
-            padding: 12px 15px; /* Matches other table cell padding */
-            width: auto; 
-            align-items: center; /* This vertically centers all buttons */
-        }
-        
-        /* === FIX ADDED === */
-        /* This rule targets only the requests table to stack its 3 buttons */
-        #requestsTable .actions-cell {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-        }
-        /* === END FIX === */
-        
+        /* --- ADDED: Calibration from admin_panel4.html --- */
+        .status-Calibration { background-color: var(--calibration); }
+        .actions-cell { display: flex; gap: 10px; padding: 15px; width: auto; }
         .btn { padding: 6px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; transition: opacity 0.2s; white-space: nowrap; }
         .btn:hover { opacity: 0.85; }
         .btn svg { width: 14px; height: 14px; }
         .btn-edit { background-color: var(--success); color: white; }
         .btn-delete { background-color: var(--danger); color: white; }
         .btn-restore { background-color: var(--info); color: white; }
-
-        /* --- ADDED RULE --- */
-        #toggleTrashViewBtn {
-            padding: 6px 12px; /* Makes button padding smaller */
-            font-size: 0.9rem; /* Makes button text smaller */
-        }
-        
         #notification-list .notification-item { background-color: var(--card-bg-light); border-left: 5px solid var(--primary-light); margin-bottom: 1rem; padding: 1rem; border-radius: 5px; box-shadow: var(--shadow); }
         body.dark #notification-list .notification-item { background-color: var(--card-bg-dark); border-left-color: var(--accent-gold); }
         #notification-list .notification-title { font-weight: bold; color: var(--primary-dark); margin-bottom: 0.25rem; }
@@ -223,6 +202,34 @@
         .modal-content form button { background-color: var(--primary-dark); color: white; padding: 12px; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; margin-top: 1rem; }
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
         .toast { padding: 12px 20px; background-color: var(--primary-dark); color: white; border-radius: 6px; box-shadow: var(--shadow); }
+
+        /* --- ADDED: STYLES for Return Condition Modal (from admin3) --- */
+        #returnConditionModal .modal-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-dark);
+        }
+        body.dark #returnConditionModal .modal-header h2 {
+            color: var(--text-light);
+        }
+        #returnConditionForm select {
+            appearance: none; /* Remove default arrow */
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 30px !important; 
+            font-weight: 600;
+        }
+        .modal-content p strong { 
+            color: var(--primary-dark); 
+        }
+        body.dark .modal-content p strong {
+            color: var(--accent-gold); 
+        }
+        /* --- END ADDED STYLES --- */
+
 
         /* --- 8. Responsive Design --- */
         @media screen and (max-width: 992px) {
@@ -268,6 +275,7 @@
             background-color: var(--card-bg-light);
             color: var(--text-dark);
         }
+        /* --- ADDED: prefix-input styles (from admin3) --- */
         .prefix-input {
             font-size: 1.2rem;
             padding: 12px;
@@ -325,6 +333,7 @@
             text-align: center;
             min-height: 100px;
             display: flex;
+            flex-direction: column; /* --- ADDED: from admin_panel4.html --- */
             align-items: center;
             justify-content: center;
             background-color: var(--background-light);
@@ -333,6 +342,50 @@
         body.dark .status-box { background-color: var(--background-dark); border-color: var(--border-dark); }
         .status-box.success { border-left: 5px solid var(--success); color: var(--success); }
         .status-box.error { border-left: 5px solid var(--danger); color: var(--danger); }
+        /* --- ADDED: .info style (from admin3) --- */
+        .status-box.info { border-left: 5px solid var(--info); color: var(--info); }
+        /* --- ADDED: .equipment-ready style (from admin4) --- */
+        .status-box.equipment-ready { border-left: 5px solid var(--calibration); color: var(--calibration); }
+        
+        /* --- ADDED: New Styles for Buttons (from admin3/4) --- */
+        .scan-action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        .scan-action-buttons button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            display: none; /* Initially hidden */
+        }
+        #scanAnotherItemBtn {
+            background-color: var(--primary-light);
+            color: white;
+        }
+        #scanAnotherItemBtn:hover {
+            background-color: var(--primary-dark);
+        }
+        #cancelScanBtn {
+            background-color: var(--danger);
+            color: white;
+        }
+        #cancelScanBtn:hover {
+            background-color: #a02c38;
+        }
+        /* --- ADDED: #updateStatusBtn style (from admin4) --- */
+        #updateStatusBtn {
+            background-color: var(--calibration);
+            color: white;
+        }
+        #updateStatusBtn:hover {
+            background-color: #7b4fb0;
+        }
+
 
         #capturedStudentIdDisplay { font-weight: 600; margin-top: 1rem; color: var(--primary-light); }
         body.dark #capturedStudentIdDisplay { color: var(--accent-gold); }
@@ -476,21 +529,21 @@
             <p class="page-subtitle">Monitoring overview of all admin panels.</p>
             <section class="dashboard-cards">
                  <article class="card">
-                    <div class="card-header"><div class="card-icon" style="background-color: #3498db;"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.375a.75.75 0 01.75.75v3.375a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75V7.5a.75.75 0 01.75-.75zM9 15h6.375a.75.75 0 01.75.75v3.375a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75V15.75a.75.75 0 01.75-.75z" /></svg></div><div class="card-header-text"><div class="title">Total Facility Items</div><div class="subtitle">Admin Panel 3</div></div></div>
-                    <div class="card-body"><h2 class="counter" id="admin3-total-card">0</h2><div class="items">Units</div></div>
-                </article>
+                     <div class="card-header"><div class="card-icon" style="background-color: #3498db;"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.375a.75.75 0 01.75.75v3.375a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75V7.5a.75.75 0 01.75-.75zM9 15h6.375a.75.75 0 01.75.75v3.375a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75V15.75a.75.75 0 01.75-.75z" /></svg></div><div class="card-header-text"><div class="title">Total Facility Items</div><div class="subtitle">Admin Panel 3</div></div></div>
+                     <div class="card-body"><h2 class="counter" id="admin3-total-card">0</h2><div class="items">Units</div></div>
+                 </article>
                  <article class="card">
-                    <div class="card-header"><div class="card-icon" style="background-color: #9b59b6;"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 21v-1.5M15.75 3v1.5M12 4.5v-1.5m0 18v-1.5M5.636 5.636l1.06-1.06M5.636 18.364l1.06 1.06M18.364 5.636l-1.06-1.06M18.364 18.364l-1.06 1.06M12 12a6 6 0 110-12 6 6 0 010 12z" /></svg></div><div class="card-header-text"><div class="title">Total Robotics Items</div><div class="subtitle">Admin Panel 4</div></div></div>
-                    <div class="card-body"><h2 class="counter" id="admin4-total-card">0</h2><div class="items">Units</div></div>
-                </article>
+                     <div class="card-header"><div class="card-icon" style="background-color: #9b59b6;"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 21v-1.5M15.75 3v1.5M12 4.5v-1.5m0 18v-1.5M5.636 5.636l1.06-1.06M5.636 18.364l1.06 1.06M18.364 5.636l-1.06-1.06M18.364 18.364l-1.06 1.06M12 12a6 6 0 110-12 6 6 0 010 12z" /></svg></div><div class="card-header-text"><div class="title">Total Robotics Items</div><div class="subtitle">Admin Panel 4</div></div></div>
+                     <div class="card-body"><h2 class="counter" id="admin4-total-card">0</h2><div class="items">Units</div></div>
+                 </article>
                  <article class="card">
-                    <div class="card-header"><div class="card-icon icon-aqua"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.215-.283.49-.522.799-.68a3.743 3.743 0 011.286-.294c.486-.01.97.086 1.424.275.454.19.868.45 1.226.774a3.732 3.732 0 01.96 1.226c.19.454.285.938.275 1.424a3.743 3.743 0 01-.294 1.286c-.158.309-.397.584-.68.799-.283.215-.604.401-.959.401a3.743 3.743 0 01-1.286.294c-.486.01-.97-.086-1.424-.275a3.732 3.732 0 01-1.226-.96c-.283-.454-.486-.97-.486-1.5z M4.5 12a7.5 7.5 0 0015 0h-15z" /></svg></div><div class="card-header-text"><div class="title">Total Science Items</div><div class="subtitle">Admin Panel 2</div></div></div>
-                    <div class="card-body"><h2 class="counter" id="admin2-science-card">0</h2><div class="items">Units</div></div>
-                </article>
-                <article class="card">
-                    <div class="card-header"><div class="card-icon" style="background-color: #e67e22;"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5" /></svg></div><div class="card-header-text"><div class="title">Total Sports Items</div><div class="subtitle">Admin Panel 2</div></div></div>
-                    <div class="card-body"><h2 class="counter" id="admin2-sports-card">0</h2><div class="items">Units</div></div>
-                </article>
+                     <div class="card-header"><div class="card-icon icon-aqua"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.215-.283.49-.522.799-.68a3.743 3.743 0 011.286-.294c.486-.01.97.086 1.424.275.454.19.868.45 1.226.774a3.732 3.732 0 01.96 1.226c.19.454.285.938.275 1.424a3.743 3.743 0 01-.294 1.286c-.158.309-.397.584-.68.799-.283.215-.604.401-.959.401a3.743 3.743 0 01-1.286.294c-.486.01-.97-.086-1.424-.275a3.732 3.732 0 01-1.226-.96c-.283-.454-.486-.97-.486-1.5z M4.5 12a7.5 7.5 0 0015 0h-15z" /></svg></div><div class="card-header-text"><div class="title">Total Science Items</div><div class="subtitle">Admin Panel 2</div></div></div>
+                     <div class="card-body"><h2 class="counter" id="admin2-science-card">0</h2><div class="items">Units</div></div>
+                 </article>
+                 <article class="card">
+                     <div class="card-header"><div class="card-icon" style="background-color: #e67e22;"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5" /></svg></div><div class="card-header-text"><div class="title">Total Sports Items</div><div class="subtitle">Admin Panel 2</div></div></div>
+                     <div class="card-body"><h2 class="counter" id="admin2-sports-card">0</h2><div class="items">Units</div></div>
+                 </article>
 
             </section>
             <div class="chart-container">
@@ -516,6 +569,8 @@
                         <select id="scanMode">
                             <option value="Borrowing" selected>Borrowing</option>
                             <option value="Returning">Returning</option>
+                            <option value="Status Check">Status Check</option>
+                            <option value="Equipment">Equipment Mode</option>
                         </select>
                         <div class="auto-submit-toggle">
                             <input type="checkbox" id="autoSubmitCheck" checked>
@@ -545,6 +600,12 @@
                     <div id="scanStatus" class="status-box">
                         Awaiting scan...
                     </div>
+                    
+                    <div class="scan-action-buttons">
+                        <button id="scanAnotherItemBtn" onclick="scanAnotherItem()">Scan Another Item</button>
+                        <button id="cancelScanBtn" onclick="cancelTransaction()">Cancel Transaction</button>
+                        <button id="updateStatusBtn" style="display: none;" onclick="updateEquipmentStatus()">Update Status</button>
+                    </div>
                 </section>
                 <section class="inventory-card">
                     <h2>Live Tracking Details</h2>
@@ -554,7 +615,6 @@
                 </section>
             </div>
         </div>
-        
         <div id="super-admin-content" class="page-content">
             <h1>Super Admin Overview</h1>
             <p class="page-subtitle">Monitoring all inventories and requests across the system.</p>
@@ -574,7 +634,7 @@
                 </table>
             </section>
             <section class="inventory-card">
-                <h2>Facility Inventory (Admin 3)</h2>
+                <h2>Facility Inventory (Admin 3) </h2>
                 <table id="tableAdmin3Inventory">
                     <thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Qty</th><th>Location</th><th>Status</th></tr></thead>
                     <tbody></tbody>
@@ -591,8 +651,8 @@
             <section class="inventory-card">
                 <h2>All Monitored Requests</h2>
                 <table id="tableAllMonitoredRequests">
-                        <thead><tr><th>Student Name</th><th>Item Name</th><th>Category</th><th>Status</th><th>Request Date</th></tr></thead>
-                        <tbody></tbody>
+                     <thead><tr><th>Student Name</th><th>Item Name</th><th>Category</th><th>Status</th><th>Request Date</th></tr></thead>
+                     <tbody></tbody>
                 </table>
             </section>
         </div>
@@ -608,7 +668,7 @@
                     <input type="text" name="username" placeholder="Username" required />
                     <input type="email" name="email" placeholder="Email" required />
                     <input type="text" name="studentID" placeholder="Student/Employee ID" required />
-                    <input type="password" name="password" placeholder="Password" required />
+                    <input type="password" name="password" placeholder="Password (for Admins)" />
                     <select name="role" required>
                         <option value="student">Student</option>
                         <option value="admin">Admin</option>
@@ -617,11 +677,12 @@
                 </form>
             </section>
             <section class="inventory-card">
-                <h2>All System Users</h2>
+                <h2 id="usersTableTitle">All System Users</h2>
                 <div class="filter-row">
                     <div class="search-bar">
                         <input type="text" id="searchUsers" placeholder="Search by name, ID, or email..." />
                     </div>
+                    <button id="toggleUserArchiveBtn">View Archives</button>
                 </div>
                 <table id="usersTable">
                     <thead><tr><th>Full Name</th><th>Username</th><th>Student ID</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
@@ -629,7 +690,6 @@
                 </table>
             </section>
         </div>
-
         <div id="profile-requests-content" class="page-content">
             <h1>Profile Update Requests</h1>
             <p class="page-subtitle">Review and process student requests to update their profile information.</p>
@@ -674,9 +734,8 @@
 
         <div id="inventory-content" class="page-content">
             <h1>Manage Own Inventories</h1>
-            <p class="page-subtitle">Science Lab Equipment</p>
-            <section class="inventory-card">
-                <h2>Add New Science Equipment</h2>
+
+          <h2>Add New Science Equipment</h2>
                 <form class="add-form" id="addFormScience">
                     <input type="text" name="itemId" placeholder="Item ID (e.g., SCI-001)" required />
                     <input type="text" name="name" placeholder="Equipment Name" required />
@@ -687,6 +746,7 @@
                 </form>
             </section>
             <section class="inventory-card">
+                <h2 id="scienceTableTitle">Science Equipment</h2>
                 <div class="filter-row">
                     <div class="search-bar">
                         <input type="text" id="searchScience" placeholder="Search science equipment..." />
@@ -698,8 +758,11 @@
                             <option value="Available">Available</option>
                             <option value="In-Use">In-Use</option>
                             <option value="Maintenance">Maintenance</option>
+                            <option value="Damaged">Damaged</option>
+                            <option value="Calibration">Calibration</option>
                         </select>
                     </div>
+                    <button id="toggleInventoryArchiveBtn">View Archives</button>
                 </div>
                 <table id="tableScience">
                     <thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Total Qty</th><th>Borrowed</th><th>Available</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead>
@@ -720,6 +783,7 @@
                 </form>
             </section>
             <section class="inventory-card">
+                <h2 id="sportsTableTitle">Sports Equipment</h2>
                 <div class="filter-row">
                     <div class="search-bar">
                         <input type="text" id="searchSports" placeholder="Search sports equipment..." />
@@ -731,6 +795,8 @@
                             <option value="Available">Available</option>
                             <option value="In-Use">In-Use</option>
                             <option value="Maintenance">Maintenance</option>
+                            <option value="Damaged">Damaged</option>
+                            <option value="Calibration">Calibration</option>
                         </select>
                     </div>
                 </div>
@@ -745,22 +811,22 @@
             <h1 id="requests-title">Manage Student Requests</h1>
             <p class="page-subtitle">Approve or reject pending equipment requests for Science & Sports.</p>
             <section class="inventory-card">
-                 <div class="filter-row">
-                    <div class="search-bar">
-                        <input type="text" id="requestSearch" placeholder="Search by student, item name, or ID..." />
-                    </div>
-                    <div class="filter-select">
-                        <label for="requestStatusFilter">Filter by Status</label>
-                        <select id="requestStatusFilter">
-                            <option value="All">All Statuses</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Approved">Approved</option>
-                            <option value="Rejected">Rejected</option>
-                            <option value="Returned">Returned</option>
-                        </select>
-                    </div>
-                    <button id="toggleTrashViewBtn">View Trash</button>
-                </div>
+                     <div class="filter-row">
+                         <div class="search-bar">
+                             <input type="text" id="requestSearch" placeholder="Search by student, item name, or ID..." />
+                         </div>
+                         <div class="filter-select">
+                             <label for="requestStatusFilter">Filter by Status</label>
+                             <select id="requestStatusFilter">
+                                 <option value="All">All Statuses</option>
+                                 <option value="Pending">Pending</option>
+                                 <option value="Approved">Approved</option>
+                                 <option value="Rejected">Rejected</option>
+                                 <option value="Returned">Returned</option>
+                             </select>
+                         </div>
+                         <button id="toggleTrashViewBtn">View Trash</button>
+                     </div>
                 <table id="requestsTable">
                     <thead>
                         <tr>
@@ -790,7 +856,7 @@
                         </select>
                     </div>
                 </div>
-                 <table id="historyTable">
+                     <table id="historyTable">
                     <thead>
                         <tr>
                             <th>Admin</th>
@@ -815,6 +881,7 @@
                 <option value="requests">Requests Report</option>
                 <option value="usage">Usage Report</option>
                 <option value="registeredStudents">Registered Students Report</option>
+                <option value="accountability">User Accountability</option>
               </select>
               <div style="margin-bottom:1rem;">
                 <button id="dailyBtn" class="period-btn active">Daily</button>
@@ -858,6 +925,34 @@
         </div>
     </div>
 
+    <div id="returnConditionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Return Condition Report 🛠️</h2>
+                <span class="close-button" id="closeReturnConditionModal">&times;</span>
+            </div>
+            <form id="returnConditionForm">
+                <input type="hidden" id="returnConditionItemId">
+                <input type="hidden" id="returnConditionBorrowerName">
+
+                <p style="margin-bottom: 1rem;">**Item:** <span id="modalItemName" style="font-weight: 600;"></span></p>
+                <p style="margin-bottom: 1.5rem;">**Borrowed By:** <span id="modalBorrowerName" style="font-weight: 600;"></span></p>
+
+                <label for="conditionSelect">Select Return Condition</label>
+                <select id="conditionSelect" required style="margin-bottom: 1rem;">
+                    <option value="Good" selected>1 - Good Condition ✅</option>
+                    <option value="Damaged">2 - Damaged ⚠️</option>
+                    <option value="Lost">3 - Lost 🚨</option>
+                </select>
+
+                <label for="damageNotes" id="damageNotesLabel" style="display: none;">Notes on Damage/Loss (Required)</label>
+                <textarea id="damageNotes" placeholder="Enter details about the damage, or confirm the item is lost." style="display: none; height: 80px;"></textarea>
+
+                <button type="submit" id="submitConditionBtn">Submit Return</button>
+            </form>
+        </div>
+    </div>
+
     <div id="toast-container"></div>
 
     <script>
@@ -876,8 +971,11 @@
                 }
             };
             
+            // --- MODIFIED: Removed allIncidentsData ---
             let allRequestsData = [], allUsersData = [], allHistoryLogs = [], notifications = [];
-            let isViewingTrash = false; // State for request trash view
+            let isViewingTrash = false; 
+            let isViewingUserArchive = false; 
+            let isViewingInventoryArchive = false; 
             let inventoryPieChartInstance = null;
             let requestStatusBarChartInstance = null;
 
@@ -894,7 +992,7 @@
             const requestsTitle = document.getElementById('requests-title');
             const logo = document.querySelector('.logo img');
 
-            // --- LIVE SCAN ---
+            // --- LIVE SCAN (MODIFIED) ---
             const scanForm = document.getElementById('scanForm');
             const scanMode = document.getElementById('scanMode');
             const scanStatus = document.getElementById('scanStatus');
@@ -911,11 +1009,26 @@
             const itemIdGroup = document.getElementById('itemIdGroup');
             let currentBorrowingStudentId = null;
             let scanDebounceTimer = null;
+            let scannedEquipmentId = null; // --- ADDED (from admin4) ---
             
+            // --- MODIFIED: Added updateStatusBtn selector ---
+            const scanAnotherItemBtn = document.getElementById('scanAnotherItemBtn');
+            const cancelScanBtn = document.getElementById('cancelScanBtn');
+            const updateStatusBtn = document.getElementById('updateStatusBtn'); // --- ADDED (from admin4) ---
+
             // User Management Elements
             const addUserForm = document.getElementById('addUserForm');
             const usersTableBody = document.getElementById('usersTableBody');
             const searchUsersInput = document.getElementById('searchUsers');
+            const toggleUserArchiveBtn = document.getElementById('toggleUserArchiveBtn'); 
+            const usersTableTitle = document.getElementById('usersTableTitle'); 
+
+            // Inventory Archive Elements
+            const toggleInventoryArchiveBtn = document.getElementById('toggleInventoryArchiveBtn');
+            const scienceTableTitle = document.getElementById('scienceTableTitle');
+            const sportsTableTitle = document.getElementById('sportsTableTitle');
+
+            // --- REMOVED: Incident Elements ---
 
             // History Filter
             const historyActionFilter = document.getElementById('historyActionFilter');
@@ -927,6 +1040,27 @@
                 fetchAdminNotifications();
             }
 
+            // --- ADDED: Auto-submit handlers from admin_panel3.html ---
+            const handleAutoSubmit = (event) => {
+                clearTimeout(scanDebounceTimer);
+                if (autoSubmitCheck.checked) {
+                    scanDebounceTimer = setTimeout(() => {
+                         if (event.target.value.trim() !== '') {
+                             processScan(event.target);
+                         }
+                    }, 100); 
+                }
+            };
+            const disableAutoSubmit = () => {
+                itemIdInput.removeEventListener('input', handleAutoSubmit);
+                studentIdInput.removeEventListener('input', handleAutoSubmit);
+            };
+            const enableAutoSubmit = () => {
+                itemIdInput.addEventListener('input', handleAutoSubmit);
+                studentIdInput.addEventListener('input', handleAutoSubmit);
+            };
+
+            // --- MODIFIED: setupEventListeners ---
             function setupEventListeners() {
                 document.querySelector(".toggle-btn").addEventListener("click", () => body.classList.toggle("sidebar-collapsed"));
                 
@@ -942,6 +1076,12 @@
                     }
                 });
                 
+                if (localStorage.getItem("dark-mode") === "true") {
+                    body.classList.add("dark");
+                    darkToggle.querySelector('.sun-icon').style.display = 'none';
+                    darkToggle.querySelector('.moon-icon').style.display = 'block';
+                }
+
                 document.querySelectorAll("#sidebar nav a[data-page]").forEach(link => {
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
@@ -949,15 +1089,16 @@
                     });
                 });
 
+                // --- MODIFIED: Live scan click listener (from admin3) ---
                 const mainContentArea = document.querySelector('main');
                 mainContentArea.addEventListener('click', (event) => {
                     const liveScanPage = document.getElementById('live-scan-content');
-                    if (liveScanPage.classList.contains('active') && !event.target.closest('.live-scan-container form, .live-scan-container select')) {
+                    if (liveScanPage.classList.contains('active') && !event.target.closest('.live-scan-container form, .live-scan-container select, .scan-action-buttons')) {
                         if (itemIdGroup.style.display !== 'none') {
                             itemIdPrefixInput.focus();
                         } 
                         else if (studentIdGroup.style.display !== 'none') {
-                            studentIdPrefixInput.focus();
+                           studentIdPrefixInput.focus();
                         }
                     }
                 });
@@ -979,29 +1120,39 @@
                 // History Filter Listener
                 historyActionFilter.addEventListener('change', renderHistoryLogs);
 
+                // User Management Listeners
                 addUserForm.addEventListener('submit', handleCreateUser);
                 searchUsersInput.addEventListener('input', renderUsersTable);
+                toggleUserArchiveBtn.addEventListener('click', toggleUserArchiveView); 
+
+                // Inventory Archive Listener
+                toggleInventoryArchiveBtn.addEventListener('click', toggleInventoryArchiveView);
 
                 editForm.addEventListener('submit', handleUpdateItem);
                 editModal.querySelector('.close-button').onclick = () => editModal.style.display = 'none';
                 statusEditModal.querySelector('.close-button').onclick = () => statusEditModal.style.display = 'none';
+                
+                document.getElementById('closeReturnConditionModal').onclick = () => document.getElementById('returnConditionModal').style.display = 'none';
+                
+                // --- REMOVED: Incident Modal Listeners ---
+
+
                 window.addEventListener('click', (event) => { 
                     if (event.target == editModal) editModal.style.display = 'none'; 
                     if (event.target == statusEditModal) statusEditModal.style.display = 'none';
+                    if (event.target == document.getElementById('returnConditionModal')) document.getElementById('returnConditionModal').style.display = 'none';
+                    // --- REMOVED: Incident modal window click ---
                 });
                 
                 document.getElementById('statusEditForm').addEventListener('submit', (e) => {
                     e.preventDefault();
                     const requestId = document.getElementById('statusRequestId').value;
                     const newStatus = document.getElementById('statusSelect').value;
-                    const req = allRequestsData.find(r => r._id === requestId);
-                    if (req) {
-                        handleRequest(requestId, newStatus);
-                    }
+                    handleRequest(requestId, newStatus); // --- MODIFIED (simplified) ---
                     statusEditModal.style.display = 'none';
                 });
 
-                // --- LIVE SCAN Event Listeners ---
+                // --- LIVE SCAN Event Listeners (REPLACED) ---
                 scanMode.addEventListener('change', resetScannerUI);
 
                 scanForm.addEventListener('submit', (e) => {
@@ -1009,19 +1160,33 @@
                     processScan(document.activeElement);
                 });
 
-                const handleAutoSubmit = (event) => {
-                    clearTimeout(scanDebounceTimer);
-                    if (autoSubmitCheck.checked) {
-                        scanDebounceTimer = setTimeout(() => {
-                            processScan(event.target);
-                        }, 200);
+                // --- MODIFIED: Use the new auto-submit handlers ---
+                enableAutoSubmit();
+            
+                // --- ADDED: Listeners for new scan buttons ---
+                scanAnotherItemBtn.addEventListener('click', scanAnotherItem);
+                cancelScanBtn.addEventListener('click', cancelTransaction);
+                updateStatusBtn.addEventListener('click', updateEquipmentStatus); // --- ADDED ---
+
+                // --- ADDED: Event Listeners for Return Condition Modal ---
+                document.getElementById('returnConditionForm').addEventListener('submit', window.handleReturnConditionSubmission);
+                
+                document.getElementById('conditionSelect').addEventListener('change', (e) => {
+                    const notesLabel = document.getElementById('damageNotesLabel');
+                    const notesTextarea = document.getElementById('damageNotes');
+                    if (['Damaged', 'Lost'].includes(e.target.value)) {
+                        notesLabel.style.display = 'block';
+                        notesTextarea.style.display = 'block';
+                        notesTextarea.required = true;
+                    } else {
+                        notesLabel.style.display = 'none';
+                        notesTextarea.style.display = 'none';
+                        notesTextarea.required = false;
                     }
-                };
-                studentIdInput.addEventListener('input', handleAutoSubmit);
-                itemIdInput.addEventListener('input', handleAutoSubmit);
+                });
             }
             
-            // --- 3. PAGE NAVIGATION & CONTENT LOADING ---
+            // --- 3. PAGE NAVIGATION & CONTENT LOADING (MODIFIED) ---
             window.showPage = (pageId) => {
                 document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
                 const page = document.getElementById(`${pageId}-content`);
@@ -1033,9 +1198,9 @@
                 if (pageId === 'dashboard') {
                     updateSuperAdminDashboard();
                 } else if (pageId === 'inventory') {
+                    isViewingInventoryArchive = false;
                     for (const type in inventoryTypes) fetchInventory(type);
                 } else if (pageId === 'requests') {
-                    // Reset to active view when navigating to the page
                     isViewingTrash = false;
                     fetchAllRequests();
                 } else if (pageId === 'notifications') {
@@ -1045,172 +1210,57 @@
                 } else if (pageId === 'super-admin') {
                     loadSuperAdminData();
                 } else if (pageId === 'user-management') {
+                    isViewingUserArchive = false;
                     fetchAllUsers();
                 } else if (pageId === 'profile-requests') {
                     fetchProfileUpdateRequests();
                 } else if (pageId === 'registration-requests') {
                     fetchPendingRegistrations();
-                } else if (pageId === 'live-scan') {
+                } else if (pageId === 'live-scan') { // --- REMOVED: 'incidents' else if ---
                     initializeLiveScan();
                 }
             };
 
-            // --- LIVE SCAN FUNCTIONS ---
-            function initializeLiveScan() {
-                resetScannerUI();
-            }
-            
-            function clearTrackingDetails() {
-                trackingDetailsContainer.innerHTML = '<p>Scan an item to see its details here.</p>';
-            }
-
-            function resetScannerUI() {
-                currentBorrowingStudentId = null;
-                studentIdInput.value = '';
-                itemIdInput.value = '';
-                studentIdPrefixInput.value = '';
-                itemIdPrefixInput.value = '';
-                studentIdInput.readOnly = false;
-                
-                scanStatus.textContent = 'Awaiting scan...';
-                scanStatus.className = 'status-box';
-                
-                const mode = scanMode.value;
-                if (mode === 'Returning') {
-                    studentIdPrefixGroup.style.display = 'none';
-                    studentIdGroup.style.display = 'none';
-                    itemIdGroup.style.display = 'block';
-                    itemIdInput.placeholder = 'Scan item to RETURN...';
-                    itemIdPrefixInput.focus();
-                } else { // Borrowing
-                    studentIdPrefixGroup.style.display = 'block';
-                    studentIdGroup.style.display = 'block';
-                    itemIdGroup.style.display = 'none';
-                    studentIdInput.placeholder = 'Scan student ID to BORROW...';
-                    studentIdPrefixInput.focus();
+            // --- 3. PAGE NAVIGATION & CONTENT LOADING (MODIFIED) ---
+            window.showPage = (pageId) => {
+                document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+                const page = document.getElementById(`${pageId}-content`);
+                if (page) {
+                    page.classList.add('active');
                 }
-                clearTrackingDetails();
-            }
+                document.querySelectorAll("#sidebar nav a[data-page]").forEach(l => l.classList.toggle('active', l.dataset.page === pageId));
 
-            async function fetchAndDisplayItemDetails(itemId) {
-                trackingDetailsContainer.innerHTML = '<p>Loading item details...</p>';
-                try {
-                    const response = await fetch(`/api/item-details/${itemId}`);
-                    if (!response.ok) {
-                        throw new Error('Item not found in database.');
-                    }
-                    const data = await response.json();
-
-                    const statusClass = (data.status || 'Available').replace(/[^a-zA-Z0-9]/g, '');
-                    let trackingHTML = `
-                        <h3>${data.name}</h3>
-                        <p>
-                            <strong>ID:</strong> ${data.itemId} | 
-                            <strong>Status:</strong> <span class="status-badge status-${statusClass}">${data.status}</span>
-                        </p>
-                    `;
-
-                    if (data.currentLoan) {
-                        trackingHTML += `
-                        <div id="trackingBorrowerInfo">
-                            <p class="detail-item">Currently Borrowed By:</p>
-                            <span>${data.currentLoan.studentName} (${data.currentLoan.studentID})</span><br>
-                            <span><strong>Due Date:</strong> ${new Date(data.currentLoan.dueDate).toLocaleDateString()}</span>
-                        </div>`;
-                    }
-                    
-                    trackingHTML += `<h4>History</h4><div id="trackingHistoryLog">`;
-                    if(data.history && data.history.length > 0) {
-                        data.history.forEach(log => {
-                            trackingHTML += `<div><strong>${log.action}</strong> by ${log.studentName || 'N/A'} on ${new Date(log.timestamp).toLocaleString()}</div>`;
-                        });
-                    } else {
-                        trackingHTML += `<div>No transaction history for this item.</div>`;
-                    }
-                    trackingHTML += `</div>`;
-
-                    trackingDetailsContainer.innerHTML = trackingHTML;
-
-                } catch (error) {
-                    trackingDetailsContainer.innerHTML = `<p style="color: var(--danger);">${error.message}</p>`;
+                if (pageId === 'dashboard') {
+                    updateSuperAdminDashboard();
+                } else if (pageId === 'inventory') {
+                    isViewingInventoryArchive = false; 
+                    // --- ADDED: Reset inventory view ---
+                    inventoryTypes.Science.statusFilter.style.display = 'block';
+                    inventoryTypes.Sports.statusFilter.style.display = 'block';
+                    document.getElementById('scienceTableTitle').textContent = 'Science Equipment';
+                    document.getElementById('sportsTableTitle').textContent = 'Sports Equipment';
+                    toggleInventoryArchiveBtn.textContent = 'View Archives';
+                    for (const type in inventoryTypes) fetchInventory(type);
+                } else if (pageId === 'requests') {
+                    isViewingTrash = false;
+                    fetchAllRequests();
+                } else if (pageId === 'notifications') {
+                    renderNotifications();
+                } else if (pageId === 'history') {
+                    fetchHistoryLogs();
+                } else if (pageId === 'super-admin') {
+                    loadSuperAdminData();
+                } else if (pageId === 'user-management') {
+                    isViewingUserArchive = false; // User archive is not supported by server.js
+                    fetchAllUsers();
+                } else if (pageId === 'profile-requests') {
+                    fetchProfileUpdateRequests();
+                } else if (pageId === 'registration-requests') {
+                    fetchPendingRegistrations();
+                } else if (pageId === 'live-scan') { // --- REMOVED: 'incidents' else if ---
+                    initializeLiveScan();
                 }
-            }
-
-            async function processScan(triggeredInput) {
-                const mode = scanMode.value;
-
-                if (mode === 'Borrowing') {
-                    const studentIdValue = studentIdInput.value.trim();
-                    if (triggeredInput === studentIdInput && studentIdValue !== '') {
-                        currentBorrowingStudentId = studentIdValue;
-                        studentIdInput.readOnly = true;
-                        scanStatus.textContent = `Student ID ${currentBorrowingStudentId} captured. Now scan the item.`;
-                        itemIdGroup.style.display = 'block';
-                        itemIdPrefixInput.focus();
-                        return;
-                    }
-                    
-                    const itemIdValue = itemIdInput.value.trim();
-                    if (triggeredInput === itemIdInput && itemIdValue !== '' && currentBorrowingStudentId) {
-                        const finalItemId = itemIdValue;
-                        const studentID = currentBorrowingStudentId;
-                        
-                        await fetchAndDisplayItemDetails(finalItemId);
-                        
-                        try {
-                           const response = await fetch('/api/borrow-by-barcode', {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({ itemId: finalItemId, studentID })
-                           });
-                           const result = await response.json();
-                           if (!response.ok) throw new Error(result.message || 'Failed to process borrowing.');
-
-                           scanStatus.textContent = result.message;
-                           scanStatus.className = 'status-box success';
-                           showToast(result.message, 'success');
-                           setTimeout(() => fetchAndDisplayItemDetails(finalItemId), 500);
-                        } catch(error) {
-                           scanStatus.textContent = error.message;
-                           scanStatus.className = 'status-box error';
-                           showToast(error.message, 'error');
-                        } finally {
-                           setTimeout(resetScannerUI, 1500);
-                        }
-                    }
-                } else { // Returning mode
-                    const itemIdValue = itemIdInput.value.trim();
-                    if (triggeredInput === itemIdInput && itemIdValue) {
-                        const finalItemId = itemIdValue;
-
-                        await fetchAndDisplayItemDetails(finalItemId);
-
-                        try {
-                            const response = await fetch('/api/return-by-barcode', {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({ itemId: finalItemId })
-                            });
-                            const result = await response.json();
-                            if (!response.ok) throw new Error(result.message || 'Failed to process return.');
-
-                            scanStatus.textContent = result.message;
-                            scanStatus.className = 'status-box success';
-                            showToast(result.message, 'success');
-                            setTimeout(() => fetchAndDisplayItemDetails(finalItemId), 500);
-                        } catch(error) {
-                            scanStatus.textContent = error.message;
-                            scanStatus.className = 'status-box error';
-                            showToast(error.message, 'error');
-                        } finally {
-                           itemIdInput.value = '';
-                           itemIdPrefixInput.value = '';
-                           itemIdPrefixInput.focus();
-                        }
-                    }
-                }
-            }
-
+            };
 
             // --- 4. DASHBOARD & CHARTS ---
             async function updateSuperAdminDashboard() {
@@ -1263,7 +1313,6 @@
                     showToast("Error loading monitoring data.");
                 }
             }
-
 
             function animateCounters() {
                 document.querySelectorAll(".counter").forEach(counter => {
@@ -1357,34 +1406,472 @@
                     }
                 });
             }
+
+            // --- 5. LIVE SCAN FUNCTIONS (REPLACED/ADDED from admin4) ---
+            function initializeLiveScan() {
+                resetScannerUI();
+            }
             
-            // --- 5. INVENTORY ---
+            function clearTrackingDetails() {
+                trackingDetailsContainer.innerHTML = '<p>Scan an item to see its details here.</p>';
+            }
+
+            function resetScannerUI() {
+                currentBorrowingStudentId = null;
+                scannedEquipmentId = null; 
+                studentIdInput.value = '';
+                itemIdInput.value = '';
+                studentIdPrefixInput.value = '';
+                itemIdPrefixInput.value = '';
+                studentIdInput.readOnly = false;
+                
+                scanStatus.textContent = 'Awaiting scan...';
+                scanStatus.className = 'status-box';
+                
+                scanAnotherItemBtn.style.display = 'none';
+                cancelScanBtn.style.display = 'none';
+                updateStatusBtn.style.display = 'none'; // --- ADDED ---
+
+                const mode = scanMode.value;
+
+                // Hide all groups by default
+                studentIdPrefixGroup.style.display = 'none';
+                studentIdGroup.style.display = 'none';
+                itemIdGroup.style.display = 'none';
+
+                if (mode === 'Borrowing') {
+                    studentIdPrefixGroup.style.display = 'block';
+                    studentIdGroup.style.display = 'block';
+                    itemIdGroup.style.display = 'none';
+                    studentIdInput.placeholder = 'Scan student ID to BORROW...';
+                    studentIdPrefixInput.focus();
+                } else if (mode === 'Returning' || mode === 'Status Check' || mode === 'Equipment') { 
+                    studentIdPrefixGroup.style.display = 'none';
+                    studentIdGroup.style.display = 'none';
+                    itemIdGroup.style.display = 'block';
+                    if (mode === 'Returning') { itemIdInput.placeholder = 'Scan item to RETURN...'; } 
+                    else if (mode === 'Status Check') { itemIdInput.placeholder = 'Scan item for STATUS CHECK...'; }
+                    else if (mode === 'Equipment') { itemIdInput.placeholder = 'Scan item to change status...'; }
+                    itemIdPrefixInput.focus();
+                }
+                
+                clearTrackingDetails();
+            }
+
+            window.scanAnotherItem = () => {
+                const mode = scanMode.value;
+                if (mode === 'Borrowing' && currentBorrowingStudentId) {
+                    itemIdInput.value = '';
+                    itemIdPrefixInput.value = '';
+                    scanStatus.textContent = `Student ID **${currentBorrowingStudentId}** captured. Scan next item.`;
+                    scanStatus.className = 'status-box info';
+                    scanAnotherItemBtn.style.display = 'none';
+                    cancelScanBtn.style.display = 'inline-block';
+                    itemIdPrefixInput.focus();
+                } else if (mode === 'Equipment' || mode === 'Returning' || mode === 'Status Check') {
+                    scannedEquipmentId = null;
+                    itemIdInput.value = '';
+                    itemIdPrefixInput.value = '';
+                    scanStatus.textContent = `Awaiting scan for next item...`;
+                    scanStatus.className = 'status-box';
+                    updateStatusBtn.style.display = 'none';
+                    scanAnotherItemBtn.style.display = 'none';
+                    cancelScanBtn.style.display = 'none';
+                    clearTrackingDetails();
+                    itemIdPrefixInput.focus();
+                } else {
+                    resetScannerUI();
+                }
+            };
+            
+            window.cancelTransaction = () => {
+                showToast('Transaction cancelled. Scanner reset.');
+                resetScannerUI();
+            };
+
+            // --- ADDED: Equipment Mode functions from admin4 ---
+            function renderEquipmentStatusChange(itemData) {
+                scannedEquipmentId = itemData.itemId;
+                const statusClass = itemData.status.replace(/[^a-zA-Z0-9]/g, '');
+                trackingDetailsContainer.innerHTML = `
+                    <h3>${itemData.name} (${itemData.itemId})</h3>
+                    <p>
+                        <strong>Current Status:</strong> <span class="status-badge status-${statusClass}">${itemData.status}</span><br>
+                        <strong>Available Qty:</strong> ${itemData.quantity || 0} / ${itemData.originalQuantity || 0}
+                    </p>
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label for="newEquipmentStatus">Change Status To:</label>
+                        <select id="newEquipmentStatus" class="prefix-input">
+                            <option value="Available" ${itemData.status === 'Available' ? 'selected' : ''}>Available</option>
+                            <option value="Maintenance" ${itemData.status === 'Maintenance' ? 'selected' : ''}>Maintenance</option>
+                            <option value="Calibration" ${itemData.status === 'Calibration' ? 'selected' : ''}>Calibration</option>
+                            <option value="Damaged" ${itemData.status === 'Damaged' ? 'selected' : ''}>Damaged</option>
+                            <option value="In-Use" disabled>In-Use (System-managed)</option>
+                        </select>
+                    </div>`;
+                scanStatus.textContent = `Item **${itemData.itemId}** is ready for status change.`;
+                scanStatus.className = 'status-box equipment-ready';
+                updateStatusBtn.style.display = 'inline-block';
+                scanAnotherItemBtn.style.display = 'none';
+                cancelScanBtn.style.display = 'inline-block';
+            }
+
+            window.updateEquipmentStatus = async () => {
+                const newStatus = document.getElementById('newEquipmentStatus').value;
+                const itemId = scannedEquipmentId;
+                if (!itemId || !newStatus || newStatus === 'In-Use') return;
+                
+                // Find the item in any of the stores
+                let originalItem = null;
+                let apiToCall = null;
+                for (const type in inventoryTypes) {
+                    originalItem = inventoryTypes[type].store.find(i => i.itemId === itemId);
+                    if (originalItem) {
+                        apiToCall = inventoryTypes[type].api;
+                        break;
+                    }
+                }
+
+                if (!originalItem) {
+                    showToast(`Error: Item ${itemId} not found locally.`, 'error');
+                    return;
+                }
+
+                try {
+                    scanStatus.textContent = `Updating status for ${itemId}...`;
+                    scanStatus.className = 'status-box info';
+                    updateStatusBtn.style.display = 'none';
+                    
+                    const isNowAvailable = newStatus === 'Available';
+                    const isNowUnavailable = ['Maintenance', 'Calibration', 'Damaged'].includes(newStatus);
+                    
+                    const updateData = {
+                        status: newStatus,
+                        quantity: isNowUnavailable ? 0 : (isNowAvailable ? originalItem.originalQuantity : originalItem.quantity)
+                    };
+
+                    const response = await fetch(`${apiToCall}/${itemId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updateData)
+                    });
+                    if (!response.ok) throw new Error((await response.json()).message || 'Failed to update equipment status.');
+                    
+                    showToast(`Status for ${itemId} updated to **${newStatus}**!`, 'success');
+                    scanStatus.textContent = `Success: Item **${itemId}** is now **${newStatus}**.`;
+                    scanStatus.className = 'status-box success';
+                    
+                    for (const type in inventoryTypes) {
+                        if (inventoryTypes[type].api === apiToCall) {
+                            fetchInventory(type);
+                            break;
+                        }
+                    }
+                    
+                    setTimeout(() => fetchAndDisplayItemDetails(itemId), 500);
+                    scanAnotherItemBtn.style.display = 'inline-block';
+                    cancelScanBtn.style.display = 'inline-block';
+                } catch (error) {
+                    showToast(`Error: ${error.message}`, 'error');
+                    scanStatus.textContent = `Error: ${error.message}`;
+                    scanStatus.className = 'status-box error';
+                    updateStatusBtn.style.display = 'inline-block';
+                }
+            };
+
+            async function fetchAndDisplayItemDetails(itemId) {
+                trackingDetailsContainer.innerHTML = '<p>Loading item details...</p>';
+                try {
+                    const response = await fetch(`/api/item-details/${itemId}`); 
+                    if (!response.ok) {
+                        if (response.status === 404) { throw new Error(`Item ID **${itemId}** not found in the database.`); }
+                        throw new Error(`Failed to fetch details for ${itemId}.`);
+                    }
+                    const data = await response.json();
+                    const originalQty = data.originalQuantity || data.quantity || 0;
+                    const availableQty = data.quantity || 0;
+                    const borrowedQty = originalQty - availableQty;
+                    // Use the item's status, but default to In-Use if borrowed
+                    const currentStatus = (borrowedQty > 0 && data.status !== 'Maintenance' && data.status !== 'Calibration' && data.status !== 'Damaged') ? 'In-Use' : (data.status || 'Available');
+                    const statusClass = currentStatus.replace(/[^a-zA-Z0-9]/g, '');
+                    
+                    let trackingHTML = `
+                        <h3>${data.name}</h3>
+                        <p>
+                            <strong>ID:</strong> ${data.itemId} | 
+                            <strong>Category:</strong> ${data.category} |
+                            <strong>Location:</strong> ${data.location}
+                        </p>
+                        <p>
+                            <strong>Current Status:</strong> <span class="status-badge status-${statusClass}">${currentStatus}</span> |
+                            <strong>Available Qty:</strong> ${availableQty} / ${originalQty}
+                        </p>`;
+                    if (borrowedQty > 0 && data.currentLoan) {
+                        trackingHTML += `<div id="trackingBorrowerInfo"><p class="detail-item">Currently Borrowed By:</p><span>${data.currentLoan.studentName} (${data.currentLoan.studentID})</span><br><span><strong>Due Date:</strong> ${new Date(data.currentLoan.dueDate).toLocaleDateString()}</span></div>`;
+                    } else if (currentStatus === 'Maintenance' || currentStatus === 'Calibration' || currentStatus === 'Damaged') {
+                        trackingHTML += `<div id="trackingBorrowerInfo" style="background-color: var(${currentStatus === 'Maintenance' ? '--warning' : (currentStatus === 'Damaged' ? '--danger' : '--calibration')}); color: white; border-color: #d1d5db;"><p class="detail-item">ITEM UNDER ${currentStatus.toUpperCase()}</p></div>`;
+                    }
+                    trackingHTML += `<h4>History</h4><div id="trackingHistoryLog">`;
+                    if(data.history && data.history.length > 0) {
+                        data.history.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(log => {
+                            trackingHTML += `<div><strong>${log.action}</strong> by ${log.studentName || 'N/A'} on ${new Date(log.timestamp).toLocaleString()}</div>`;
+                        });
+                    } else {
+                        trackingHTML += `<div><div>No transaction history for this item.</div>`;
+                    }
+                    trackingHTML += `</div>`;
+                    trackingDetailsContainer.innerHTML = trackingHTML;
+                    return { success: true, status: currentStatus, itemData: data };
+                } catch (error) {
+                    trackingDetailsContainer.innerHTML = `<p style="color: var(--danger);">**Error:** ${error.message}</p>`;
+                    return { success: false, message: error.message };
+                }
+            }
+            
+            // --- *** KEY FIX *** ---
+            // --- THIS FUNCTION WAS MISSING ---
+            // --- ADDED: Global function to handle modal submission (from admin_panel3.html) ---
+            window.handleReturnConditionSubmission = async (e) => {
+                e.preventDefault();
+                const modal = document.getElementById('returnConditionModal');
+                const finalItemId = document.getElementById('returnConditionItemId').value;
+                const returnCondition = document.getElementById('conditionSelect').value;
+                let damageNotes = document.getElementById('damageNotes').value.trim();
+                
+                if (['Damaged', 'Lost'].includes(returnCondition) && damageNotes === '') {
+                    showToast('Notes on damage/loss are required for non-Good conditions.', 'error');
+                    return;
+                }
+
+                modal.style.display = 'none';
+                disableAutoSubmit();
+
+                try {
+                    const response = await fetch('/api/return-by-barcode', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            itemId: finalItemId,
+                            condition: returnCondition,
+                            damageNotes: damageNotes
+                        })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message || 'Failed to process return.');
+
+                    scanStatus.textContent = result.message;
+                    scanStatus.className = 'status-box success';
+                    showToast(result.message, 'success');
+                    fetchAndDisplayItemDetails(finalItemId); // Re-fetch details after return
+                    
+                    // Refetch all inventories
+                    for (const type in inventoryTypes) fetchInventory(type);
+
+                } catch (error) {
+                    scanStatus.textContent = error.message;
+                    scanStatus.className = 'status-box error';
+                    showToast(error.message, 'error');
+                } finally {
+                    // Reset UI for next scan
+                    scanAnotherItemBtn.style.display = 'inline-block';
+                    cancelScanBtn.style.display = 'inline-block';
+                    enableAutoSubmit();
+                    itemIdPrefixInput.focus();
+                }
+            };
+            // --- *** END OF FIX *** ---
+
+
+            async function processScan(triggeredInput) {
+                const mode = scanMode.value;
+                const isStudentInput = triggeredInput === studentIdInput;
+                const isItemInput = triggeredInput === itemIdInput;
+                
+                // Consolidate prefix/suffix logic
+                const finalItemId = (itemIdPrefixInput.value || '') + (itemIdInput.value || '');
+                const finalStudentId = (studentIdPrefixInput.value || '') + (studentIdInput.value || '');
+
+                if (mode === 'Borrowing' && isStudentInput && finalStudentId.trim() !== '') {
+                    currentBorrowingStudentId = finalStudentId.trim();
+                    studentIdInput.readOnly = true;
+                    scanStatus.textContent = `Student ID **${currentBorrowingStudentId}** captured. Now scan the item.`;
+                    scanStatus.className = 'status-box info';
+                    itemIdGroup.style.display = 'block';
+                    itemIdPrefixInput.focus();
+                    cancelScanBtn.style.display = 'inline-block';
+                    return;
+                }
+
+                if (isItemInput && finalItemId.trim() !== '') {
+                    const itemId = finalItemId.trim();
+                    disableAutoSubmit(); 
+                    itemIdInput.value = '';
+                    itemIdPrefixInput.value = '';
+
+                    const itemDetailsResult = await fetchAndDisplayItemDetails(itemId);
+                    if (!itemDetailsResult.success) {
+                        scanStatus.textContent = `Error: ${itemDetailsResult.message}`;
+                        scanStatus.className = 'status-box error';
+                        scanAnotherItemBtn.style.display = 'inline-block';
+                        cancelScanBtn.style.display = 'inline-block';
+                        enableAutoSubmit();
+                        itemIdPrefixInput.focus();
+                        return;
+                    }
+
+                    if (mode === 'Borrowing' && currentBorrowingStudentId) {
+                        const studentID = currentBorrowingStudentId;
+                        if (itemDetailsResult.status === 'Maintenance' || itemDetailsResult.status === 'Calibration' || itemDetailsResult.status === 'Damaged') {
+                            scanStatus.textContent = `Error: Item **${itemId}** is under ${itemDetailsResult.status} and cannot be borrowed.`;
+                            scanStatus.className = 'status-box error';
+                            showToast(`Error: Item ${itemId} under ${itemDetailsResult.status}.`, 'error');
+                        } else {
+                            try {
+                                const response = await fetch('/api/borrow-by-barcode', {
+                                    method: 'POST',
+                                    headers: {'Content-Type': 'application/json'},
+                                    body: JSON.stringify({ itemId: itemId, studentID })
+                                });
+                                const result = await response.json();
+                                if (!response.ok) throw new Error(result.message || 'Failed to process borrowing.');
+                                scanStatus.textContent = result.message;
+                                scanStatus.className = 'status-box success';
+                                showToast(result.message, 'success');
+                                for (const type in inventoryTypes) fetchInventory(type); 
+                            } catch(error) {
+                                scanStatus.textContent = error.message;
+                                scanStatus.className = 'status-box error';
+                                showToast(error.message, 'error');
+                            }
+                        }
+                        scanAnotherItemBtn.style.display = 'inline-block';
+                        cancelScanBtn.style.display = 'inline-block';
+
+                    } else if (mode === 'Returning') {
+                        if (itemDetailsResult.itemData && itemDetailsResult.itemData.currentLoan) {
+                            const borrowerName = itemDetailsResult.itemData.currentLoan.studentName;
+                            const modal = document.getElementById('returnConditionModal');
+                            document.getElementById('returnConditionItemId').value = itemId;
+                            document.getElementById('modalItemName').textContent = itemDetailsResult.itemData.name;
+                            document.getElementById('modalBorrowerName').textContent = `${borrowerName} (${itemDetailsResult.itemData.currentLoan.studentID})`;
+                            
+                            document.getElementById('conditionSelect').value = 'Good';
+                            document.getElementById('damageNotes').value = '';
+                            document.getElementById('damageNotesLabel').style.display = 'none';
+                            document.getElementById('damageNotes').style.display = 'none';
+                            document.getElementById('damageNotes').required = false;
+
+                            modal.style.display = 'flex';
+                        } else {
+                            scanStatus.textContent = `Error: No active loan found for item ID ${itemId}. Cannot return.`;
+                            scanStatus.className = 'status-box error';
+                            showToast(`Error: No active loan found for ${itemId}.`, 'error');
+                            scanAnotherItemBtn.style.display = 'inline-block';
+                            cancelScanBtn.style.display = 'inline-block';
+                        }
+                    } else if (mode === 'Status Check') {
+                        scanStatus.textContent = `Item **${itemId}** Status: **${itemDetailsResult.status}**`;
+                        scanStatus.className = `status-box info`;
+                        scanAnotherItemBtn.style.display = 'inline-block';
+                        cancelScanBtn.style.display = 'inline-block';
+                    } else if (mode === 'Equipment') {
+                        renderEquipmentStatusChange(itemDetailsResult.itemData);
+                    }
+                    
+                    enableAutoSubmit();
+                    if(mode !== 'Returning') itemIdPrefixInput.focus();
+                }
+            }
+
+
+            // --- 6. INCIDENT MANAGEMENT (REMOVED) ---
+            
+
+            // --- 7. INVENTORY CRUD & RENDERING ---
             async function fetchInventory(type) {
                 const config = inventoryTypes[type];
                 try {
-                    const response = await fetch(config.api);
+                    const response = await fetch(config.api); 
                     if (!response.ok) throw new Error(`Failed to fetch ${type} inventory`);
                     config.store = await response.json();
-                    renderTable(type);
+                    
+                    if (document.getElementById('inventory-content').classList.contains('active')) {
+                        // isViewingInventoryArchive = false; // This line is handled by showPage
+                        renderTable(type);
+                    }
                 } catch (error) { showToast(error.message); renderTable(type); }
+            }
+
+            async function fetchArchivedInventory() {
+                try {
+                    const response = await fetch('/api/archived-inventory');
+                    if (!response.ok) throw new Error('Failed to fetch archived inventory');
+                    const archivedItems = await response.json();
+                    
+                    inventoryTypes.Science.store = archivedItems.filter(item => item.category === 'Science');
+                    inventoryTypes.Sports.store = archivedItems.filter(item => item.category === 'Sports');
+                    
+                    if (document.getElementById('inventory-content').classList.contains('active')) {
+                        isViewingInventoryArchive = true;
+                        renderTable('Science');
+                        renderTable('Sports');
+                    }
+                } catch (error) {
+                    showToast(error.message);
+                    inventoryTypes.Science.store = [];
+                    inventoryTypes.Sports.store = [];
+                    renderTable('Science');
+                    renderTable('Sports');
+                }
             }
 
             function renderTable(type) {
                 const config = inventoryTypes[type];
+
+                if (type === 'Science') { 
+                    if (isViewingInventoryArchive) {
+                        scienceTableTitle.textContent = 'Archived Science Equipment';
+                        sportsTableTitle.textContent = 'Archived Sports Equipment';
+                        toggleInventoryArchiveBtn.textContent = 'View Active Inventory';
+                        inventoryTypes.Science.searchInput.placeholder = 'Search archived science...';
+                        inventoryTypes.Sports.searchInput.placeholder = 'Search archived sports...';
+                        inventoryTypes.Science.statusFilter.style.display = 'none';
+                        inventoryTypes.Sports.statusFilter.style.display = 'none';
+                    } else {
+                        scienceTableTitle.textContent = 'Science Equipment';
+                        sportsTableTitle.textContent = 'Sports Equipment';
+                        toggleInventoryArchiveBtn.textContent = 'View Archives';
+                        inventoryTypes.Science.searchInput.placeholder = 'Search science equipment...';
+                        inventoryTypes.Sports.searchInput.placeholder = 'Search sports equipment...';
+                        inventoryTypes.Science.statusFilter.style.display = 'block';
+                        inventoryTypes.Sports.statusFilter.style.display = 'block';
+                    }
+                }
+
                 const searchTerm = config.searchInput.value.toLowerCase();
                 const statusFilterValue = config.statusFilter.value;
+
                 const filteredData = config.store.filter(item => {
                     const originalQty = item.originalQuantity || item.quantity || 0;
                     const borrowedQty = originalQty - (item.quantity || 0);
-                    const currentStatus = borrowedQty > 0 ? 'In-Use' : (item.status || 'Available');
+                    // This logic is for display, so 'In-Use' takes precedence
+                    const displayStatus = (borrowedQty > 0 && item.status !== 'Maintenance' && item.status !== 'Damaged' && item.status !== 'Calibration') ? 'In-Use' : (item.status || 'Available');
+                    
                     const matchesSearch = Object.values(item).some(val => String(val).toLowerCase().includes(searchTerm));
-                    const matchesStatus = statusFilterValue === 'All' || currentStatus === statusFilterValue;
+                    
+                    // Filter logic needs to check the *actual* status, not the display status
+                    const matchesStatus = isViewingInventoryArchive || statusFilterValue === 'All' || 
+                                    item.status === statusFilterValue ||
+                                    // Special case: 'In-Use' is a calculated status, not a stored one
+                                    (statusFilterValue === 'In-Use' && displayStatus === 'In-Use');
+
                     return matchesSearch && matchesStatus;
                 });
 
                 config.tableBody.innerHTML = '';
                 if (filteredData.length === 0) {
-                    config.tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px;">No equipment found.</td></tr>`;
+                    const msg = isViewingInventoryArchive ? 'No archived equipment found.' : 'No equipment found.';
+                    config.tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px;">${msg}</td></tr>`;
                     return;
                 }
                 
@@ -1392,21 +1879,38 @@
                     const originalQty = item.originalQuantity || item.quantity || 0;
                     const borrowedQty = originalQty - (item.quantity || 0);
                     const availableQty = item.quantity || 0;
-                    const status = borrowedQty > 0 ? 'In-Use' : (item.status || 'Available');
+                    // Recalculate displayStatus for the row
+                    const displayStatus = (borrowedQty > 0 && item.status !== 'Maintenance' && item.status !== 'Damaged' && item.status !== 'Calibration') ? 'In-Use' : (item.status || 'Available');
                     const row = config.tableBody.insertRow();
+
+                    let actionsHtml = '';
+                    if (isViewingInventoryArchive) {
+                        actionsHtml = `
+                            <button class="btn btn-restore" onclick="restoreInventoryItem('${item.itemId}')">Restore</button>
+                            <button class="btn btn-delete" onclick="deleteInventoryItemPermanently('${item.itemId}')">Delete Permanently</button>
+                        `;
+                    } else {
+                        actionsHtml = `
+                            <button class="btn btn-edit" onclick="openEditModal('${type}', '${item.itemId}')">Edit</button>
+                            <button class="btn btn-delete" onclick="archiveInventoryItem('${type}', '${item.itemId}')">Archive</button>
+                        `;
+                    }
+                    
+                    // --- MODIFIED: Added Damaged & Calibration options to select ---
                     row.innerHTML = `
                         <td>${item.itemId}</td><td>${item.name}</td><td>${item.category}</td>
                         <td>${originalQty}</td><td>${borrowedQty}</td><td>${availableQty}</td><td>${item.location}</td>
                         <td>
-                            <select class="status-select status-${status.replace(/[^a-zA-Z0-9]/g, '')}" onchange="updateStatus('${type}', this, '${item.itemId}')">
-                                <option value="Available" ${status === 'Available' ? 'selected' : ''}>Available</option>
-                                <option value="In-Use" ${status === 'In-Use' ? 'selected' : ''}>In-Use</option>
-                                <option value="Maintenance" ${status === 'Maintenance' ? 'selected' : ''}>Maintenance</option>
+                            <select class="status-select status-${displayStatus.replace(/[^a-zA-Z0-9]/g, '')}" onchange="updateStatus('${type}', this, '${item.itemId}')">
+                                <option value="Available" ${displayStatus === 'Available' ? 'selected' : ''}>Available</option>
+                                <option value="In-Use" ${displayStatus === 'In-Use' ? 'selected' : ''} disabled>In-Use</option>
+                                <option value="Maintenance" ${displayStatus === 'Maintenance' ? 'selected' : ''}>Maintenance</option>
+                                <option value="Damaged" ${displayStatus === 'Damaged' ? 'selected' : ''}>Damaged</option>
+                                <option value="Calibration" ${displayStatus === 'Calibration' ? 'selected' : ''}>Calibration</option>
                             </select>
                         </td>
                         <td class="actions-cell">
-                            <button class="btn btn-edit" onclick="openEditModal('${type}', '${item.itemId}')">Edit</button>
-                            <button class="btn btn-delete" onclick="confirmDelete('${type}', '${item.itemId}')">Delete</button>
+                            ${actionsHtml}
                         </td>`;
                 });
             }
@@ -1444,12 +1948,23 @@
                     const itemId = document.getElementById('editItemId').value;
                     const type = document.getElementById('editItemType').value;
                     const config = inventoryTypes[type];
+
+                    const originalItem = config.store.find(i => i.itemId === itemId);
+                    const newTotalQuantity = parseInt(document.getElementById('editQuantity').value);
+                    
                     const updatedData = {
-                        name: document.getElementById('editItemName').value, 
+                        name: document.getElementById('editItemName').value,
                         category: document.getElementById('editCategory').value,
-                        quantity: parseInt(document.getElementById('editQuantity').value), 
+                        originalQuantity: newTotalQuantity, // Always update originalQuantity
                         location: document.getElementById('editLocation').value,
                     };
+
+                    // Recalculate 'available' quantity if total quantity was changed
+                    if (originalItem && newTotalQuantity !== originalItem.originalQuantity) {
+                        const borrowedQty = originalItem.originalQuantity - originalItem.quantity;
+                        updatedData.quantity = newTotalQuantity - borrowedQty; // This is the new 'available'
+                    }
+
                     try {
                         const response = await fetch(`${config.api}/${itemId}`, { 
                             method: 'PUT', 
@@ -1482,7 +1997,7 @@
                 }
             }
             
-            // --- 6. REQUESTS (With Trash Functionality) ---
+            // --- 8. REQUESTS ---
             const toggleRequestView = () => {
                 isViewingTrash = !isViewingTrash;
                 if (isViewingTrash) {
@@ -1492,6 +2007,16 @@
                 }
             };
             
+            const toggleInventoryArchiveView = () => {
+                isViewingInventoryArchive = !isViewingInventoryArchive;
+                if (isViewingInventoryArchive) {
+                    fetchArchivedInventory();
+                } else {
+                    fetchInventory('Science');
+                    fetchInventory('Sports');
+                }
+            };
+
             async function fetchAllRequests() {
                 try {
                     const response = await fetch('/api/admin2-requests');
@@ -1524,7 +2049,6 @@
             }
 
             const renderRequestsTable = () => {
-                // Update UI based on view
                 requestsTitle.textContent = isViewingTrash ? 'Deleted Requests (Trash)' : 'Manage Student Requests';
                 toggleTrashViewBtn.textContent = isViewingTrash ? 'View Active Requests' : 'View Trash';
                 requestStatusFilter.style.display = isViewingTrash ? 'none' : 'block';
@@ -1577,7 +2101,7 @@
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.message || `Failed to update request`);
                     showToast(result.message || `Request updated successfully.`);
-                    fetchAllRequests(); // Refresh active list
+                    fetchAllRequests(); 
                     fetchAdminNotifications();
                     for (const type in inventoryTypes) fetchInventory(type);
                 } catch (error) { showToast(`Error: ${error.message}`); }
@@ -1590,7 +2114,7 @@
                     const result = await res.json();
                     if (!res.ok) throw new Error(result.message);
                     showToast(result.message);
-                    fetchAllRequests(); // Refresh the active list
+                    fetchAllRequests(); 
                 } catch (error) { showToast(`Error: ${error.message}`); }
             };
 
@@ -1601,7 +2125,7 @@
                     const result = await res.json();
                     if (!res.ok) throw new Error(result.message);
                     showToast(result.message);
-                    fetchDeletedRequests(); // Refresh the trash list
+                    fetchDeletedRequests(); 
                 } catch (error) { showToast(`Error: ${error.message}`); }
             };
 
@@ -1612,11 +2136,11 @@
                     const result = await res.json();
                     if (!res.ok) throw new Error(result.message);
                     showToast(result.message);
-                    fetchDeletedRequests(); // Refresh the trash list
+                    fetchDeletedRequests(); 
                 } catch (error) { showToast(`Error: ${error.message}`); }
             };
             
-            // --- 7. SUPER ADMIN & USER MANAGEMENT FUNCTIONS ---
+            // --- 9. SUPER ADMIN & USER MANAGEMENT FUNCTIONS ---
             async function loadSuperAdminData() {
                 try {
                     const [admin2InvRes, admin3InvRes, admin4InvRes, admin2ReqRes, admin3ReqRes, admin4ReqRes] = await Promise.all([
@@ -1683,17 +2207,35 @@
             }
 
             async function fetchAllUsers() {
+                // --- MODIFIED: Hide archive button as server.js doesn't support user archive ---
+                toggleUserArchiveBtn.style.display = 'none';
+                usersTableTitle.textContent = 'All System Users';
                 try {
                     const response = await fetch('/api/all-users');
                     if (!response.ok) throw new Error('Failed to fetch users. You may not have super admin rights.');
                     allUsersData = await response.json();
-                    renderUsersTable();
+                    if (document.getElementById('user-management-content').classList.contains('active')) {
+                        renderUsersTable();
+                    }
                 } catch(error) {
                     showToast(error.message);
                 }
             }
             
+            // --- REMOVED: fetchArchivedUsers() ---
+            
+            // --- MODIFIED: toggleUserArchiveView (to just hide the button) ---
+            function toggleUserArchiveView() {
+                showToast('User archiving is not supported.');
+                toggleUserArchiveBtn.style.display = 'none';
+            }
+
+            // --- MODIFIED: renderUsersTable (removed archive logic) ---
             function renderUsersTable() {
+                usersTableTitle.textContent = 'All System Users';
+                toggleUserArchiveBtn.style.display = 'none'; // Ensure it's hidden
+                searchUsersInput.placeholder = 'Search by name, ID, or email...';
+
                 const searchTerm = searchUsersInput.value.toLowerCase();
                 const filtered = allUsersData.filter(user => 
                     user.firstName.toLowerCase().includes(searchTerm) ||
@@ -1704,8 +2246,20 @@
                 );
 
                 usersTableBody.innerHTML = '';
+                
+                if (filtered.length === 0) {
+                    usersTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No active users found.</td></tr>`;
+                    return;
+                }
+                
                 filtered.forEach(user => {
                     const row = usersTableBody.insertRow();
+                    
+                    let actionsHtml = `
+                       <button class="btn btn-edit" onclick="openEditUserModal('${user._id}')">Edit</button>
+                       <button class="btn btn-delete" onclick="deleteUser('${user._id}')">Delete</button>
+                    `;
+                    
                     row.innerHTML = `
                         <td>${user.firstName} ${user.lastName}</td>
                         <td>${user.username}</td>
@@ -1714,13 +2268,13 @@
                         <td>${user.role}</td>
                         <td><span class="status-badge status-${user.status}">${user.status}</span></td>
                         <td class="actions-cell">
-                           <button class="btn btn-edit" onclick="openEditUserModal('${user._id}')">Edit</button>
-                           <button class="btn btn-delete" onclick="deleteUser('${user._id}')">Delete</button>
+                           ${actionsHtml}
                         </td>
                     `;
                 });
             }
 
+            // --- MODIFIED: handleCreateUser (password is not required) ---
             async function handleCreateUser(e) {
                 e.preventDefault();
                 const form = e.target;
@@ -1730,10 +2284,17 @@
                     username: form.querySelector('[name="username"]').value,
                     email: form.querySelector('[name="email"]').value,
                     studentID: form.querySelector('[name="studentID"]').value,
-                    password: form.querySelector('[name="password"]').value,
+                    password: form.querySelector('[name="password"]').value, // Send password (or empty string)
                     role: form.querySelector('[name="role"]').value,
                     gradeLevel: form.querySelector('[name="role"]').value === 'student' ? 'N/A' : 'N/A'
                 };
+
+                // Password is only required if the role is admin
+                if (newUser.role === 'admin' && !newUser.password) {
+                    showToast('Error: Password is required for admin accounts.');
+                    return;
+                }
+                
                 try {
                     const response = await fetch('/api/users', { 
                         method: 'POST', 
@@ -1764,7 +2325,7 @@
                     editForm.dataset.type = 'user';
                     editForm.onsubmit = handleUpdateUser;
                     editModal.style.display = 'flex';
-                }
+                 }
             };
             
             async function handleUpdateUser(e) {
@@ -1798,19 +2359,22 @@
                 }
             }
 
+            // --- MODIFIED: Replaced archive/restore/permanent with single deleteUser ---
             window.deleteUser = async (userId) => {
-                if (!confirm('Are you sure you want to delete this user? This is irreversible.')) return;
+                if (!confirm('Are you sure you want to permanently delete this user? This action cannot be undone.')) return;
                 try {
-                    const response = await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+                    const response = await fetch(`/api/users/${userId}`, { method: 'DELETE' }); 
                     if (!response.ok) throw new Error(await response.text());
                     showToast('User deleted successfully.');
-                    fetchAllUsers();
+                    fetchAllUsers(); 
                 } catch(error) {
                     showToast(`Error: ${error.message}`);
                 }
             };
+            // --- END: User Management Mods ---
 
-            // --- PROFILE REQUESTS FUNCTIONS ---
+
+            // --- 10. PROFILE & REGISTRATION REQUESTS ---
             async function fetchProfileUpdateRequests() {
                 try {
                     const response = await fetch('/api/profile-update-requests');
@@ -1848,7 +2412,6 @@
 
             window.handleProfileRequest = async (requestId, action) => {
                 if (!confirm(`Are you sure you want to ${action} this request?`)) return;
-
                 try {
                     const response = await fetch(`/api/profile-update-requests/${requestId}/${action}`, {
                         method: 'PUT'
@@ -1862,7 +2425,6 @@
                 }
             };
 
-            // --- REGISTRATION REQUESTS FUNCTIONS ---
             async function fetchPendingRegistrations() {
                 try {
                     const response = await fetch('/api/pending-registrations');
@@ -1884,6 +2446,7 @@
                 }
                 users.forEach(user => {
                     const row = tableBody.insertRow();
+                    // Use creation date from _id
                     const registrationDate = new Date(parseInt(user._id.substring(0, 8), 16) * 1000).toLocaleDateString();
                     row.innerHTML = `
                         <td>${user.firstName} ${user.lastName}</td>
@@ -1919,7 +2482,7 @@
                 }
             };
 
-            // --- 8. NOTIFICATIONS, HISTORY & UTILITIES ---
+            // --- 11. NOTIFICATIONS, HISTORY & UTILITIES ---
             const updateNotificationBadge = () => {
                 const unreadCount = notifications.filter(n => !n.isRead).length;
                 notificationBadge.textContent = unreadCount;
@@ -1962,9 +2525,8 @@
                 try {
                     const response = await fetch('/api/admin/history');
                     if (!response.ok) throw new Error('Failed to fetch history logs.');
-                    allHistoryLogs = await response.json(); // Store full log
+                    allHistoryLogs = await response.json(); 
                     
-                    // Populate filter dropdown
                     const actions = [...new Set(allHistoryLogs.map(log => log.action))];
                     historyActionFilter.innerHTML = '<option value="All">All Actions</option>';
                     actions.sort().forEach(action => {
@@ -1974,7 +2536,7 @@
                         historyActionFilter.appendChild(option);
                     });
 
-                    renderHistoryLogs(); // Initial render
+                    renderHistoryLogs(); 
                 } catch (error) {
                     showToast(error.message);
                 }
@@ -2049,24 +2611,76 @@
                 }
             };
 
-            window.confirmDelete = async (type, itemId) => {
-                if (!confirm(`Are you sure you want to delete item ${itemId}?`)) return;
+            window.archiveInventoryItem = async (type, itemId) => {
+                if (!confirm(`Are you sure you want to archive item ${itemId}?`)) return;
                 try {
                     const response = await fetch(`${inventoryTypes[type].api}/${itemId}`, { method: 'DELETE' });
-                    if (!response.ok) throw new Error('Failed to delete item');
-                    showToast('Item deleted successfully.');
-                    fetchInventory(type);
+                    if (!response.ok) throw new Error('Failed to archive item');
+                    showToast('Item archived successfully.');
+                    fetchInventory(type); 
                 } catch (error) { showToast(`Error: ${error.message}`); }
             };
 
+            window.restoreInventoryItem = async (itemId) => {
+                if (!confirm('Are you sure you want to restore this item?')) return;
+                try {
+                    const res = await fetch(`/api/inventory/restore/${itemId}`, { method: 'PUT' });
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.message);
+                    showToast(result.message);
+                    fetchArchivedInventory(); 
+                } catch (error) { showToast(`Error: ${error.message}`); }
+            };
+
+            window.deleteInventoryItemPermanently = async (itemId) => {
+                if (!confirm('WARNING: This will permanently delete the item and all its history. Are you sure?')) return;
+                try {
+                    const res = await fetch(`/api/inventory/permanent/${itemId}`, { method: 'DELETE' });
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.message);
+                    showToast(result.message);
+                    fetchArchivedInventory(); 
+                } catch (error) { showToast(`Error: ${error.message}`); }
+            };
+
+            // --- MODIFIED: updateStatus (from admin4) ---
             window.updateStatus = async (type, selectElement, itemId) => {
                 const newStatus = selectElement.value;
+                const currentItem = inventoryTypes[type].store.find(i => i.itemId === itemId);
+                if (!currentItem) return;
+
+                const originalQty = currentItem.originalQuantity || currentItem.quantity || 0;
+                const borrowedQty = originalQty - (currentItem.quantity || 0);
+                
+                if (newStatus === 'In-Use' || (borrowedQty > 0 && newStatus !== 'In-Use')) { 
+                    showToast("Status 'In-Use' is set automatically. To change status, all items must be returned first.");
+                    const actualStatus = borrowedQty > 0 ? 'In-Use' : (currentItem.status || 'Available');
+                    selectElement.value = actualStatus;
+                    return;
+                }
+                
                 try {
-                    const response = await fetch(`${inventoryTypes[type].api}/${itemId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
+                    const isNowAvailable = newStatus === 'Available';
+                    const isNowUnavailable = ['Maintenance', 'Calibration', 'Damaged'].includes(newStatus);
+                    
+                    const updateData = {
+                        status: newStatus,
+                        quantity: isNowUnavailable ? 0 : (isNowAvailable ? currentItem.originalQuantity : currentItem.quantity)
+                    };
+
+                    const response = await fetch(`${inventoryTypes[type].api}/${itemId}`, { 
+                        method: 'PUT', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify(updateData) 
+                    });
                     if (!response.ok) throw new Error('Failed to update status');
-                    showToast(`Status for ${itemId} updated.`);
+                    showToast(`Status for ${itemId} updated to ${newStatus}.`);
                     selectElement.className = `status-select status-${newStatus.replace(/[^a-zA-Z0-9]/g, '')}`;
-                } catch (error) { showToast(`Error: ${error.message}`); fetchInventory(type); }
+                    fetchInventory(type); 
+                } catch (error) {
+                    showToast(`Error: ${error.message}`);
+                    fetchInventory(type); 
+                }
             };
             
             window.showToast = (message) => {
@@ -2078,7 +2692,7 @@
                 setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
             };
 
-            // --- 9. Reports Feature ---
+            // --- 12. Reports Feature ---
             const reportTypeSelect = document.getElementById('reportType');
             const generateReportBtn = document.getElementById('generateReportBtn');
             const reportResult = document.getElementById('reportResult');
@@ -2102,7 +2716,6 @@
                     return;
                 }
                 
-                // Log report generation attempt
                 try {
                     await fetch('/api/reports', {
                         method: 'POST',
@@ -2119,71 +2732,88 @@
                     let startDate;
                     switch(selectedPeriod) {
                         case 'daily': startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()); break;
-                        case 'weekly': const day = now.getDay(); startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day); break;
+                        case 'weekly': const day = now.getDay(); startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (day === 0 ? 6 : day - 1)); break;
                         case 'yearly': startDate = new Date(now.getFullYear(), 0, 1); break;
                         default: startDate = new Date(0);
                     }
                     
+                    const startDateStr = startDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+                    const endDateStr = now.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+
                     let reportText = `<b>Report Type:</b> ${reportTypeSelect.options[reportTypeSelect.selectedIndex].text} (${selectedPeriod})<br>`;
-                    reportText += `<b>Date Range:</b> ${startDate.toLocaleDateString()} - ${now.toLocaleDateString()}<br><br>`;
+                    reportText += `<b>Date Range:</b> ${startDateStr} - ${endDateStr}<br><br>`;
                     
-                    if (selectedReportType === 'inventory' || selectedReportType === 'requests' || selectedReportType === 'usage') {
-                        const inventoryDataArrays = await Promise.all(
-                            Object.values(inventoryTypes).map(type => fetch(type.api).then(res => res.json()))
-                        );
-                        const allInventory = [].concat(...inventoryDataArrays);
-                        const requestsResponse = await fetch('/api/admin2-requests');
-                        if (!requestsResponse.ok) throw new Error('Failed to fetch requests');
-                        const allRequests = await requestsResponse.json();
-                        const filteredRequests = allRequests.filter(r => new Date(r.requestDate) >= startDate);
-                        
-                        if (selectedReportType === 'inventory') {
-                            const totalItems = allInventory.reduce((sum, i) => sum + (i.originalQuantity || i.quantity || 0), 0);
-                            const availableItems = allInventory.reduce((sum, i) => sum + (i.quantity || 0), 0);
-                            const inUseItems = totalItems - availableItems;
-                            const maintenanceItems = allInventory.filter(i => i.status === 'Maintenance').length;
-                            reportText += `<b>Summary:</b><br>`;
-                            reportText += `Total Items: ${totalItems}<br>`;
-                            reportText += `Available Items: ${availableItems}<br>`;
-                            reportText += `Items In Use: ${inUseItems}<br>`;
-                            reportText += `Items Under Maintenance: ${maintenanceItems}<br><br>`;
-                            reportText += `<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">`;
-                            reportText += `<thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Total Qty</th><th>Borrowed</th><th>Available</th><th>Location</th><th>Status</th></tr></thead><tbody>`;
-                            allInventory.forEach(item => {
-                                const originalQty = item.originalQuantity || item.quantity || 0;
-                                const availableQty = item.quantity || 0;
-                                const borrowedQty = originalQty - availableQty;
-                                reportText += `<tr><td>${item.itemId}</td><td>${item.name}</td><td>${item.category}</td><td>${originalQty}</td><td>${borrowedQty}</td><td>${availableQty}</td><td>${item.location}</td><td>${item.status}</td></tr>`;
-                            });
-                            reportText += `</tbody></table>`;
-                        } else if (selectedReportType === 'requests') {
-                             reportText += `<b>Summary:</b><br>`;
-                            reportText += `Pending: ${filteredRequests.filter(r => r.status === 'Pending').length}<br>`;
-                            reportText += `Approved: ${filteredRequests.filter(r => r.status === 'Approved').length}<br>`;
-                            reportText += `Rejected: ${filteredRequests.filter(r => r.status === 'Rejected').length}<br>`;
-                            reportText += `Returned: ${filteredRequests.filter(r => r.status === 'Returned').length}<br><br>`;
-                            reportText += `<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">`;
-                            reportText += `<thead><tr><th>Requester</th><th>Item</th><th>Qty</th><th>Status</th><th>Date</th></tr></thead><tbody>`;
-                            filteredRequests.forEach(req => {
-                                reportText += `<tr><td>${req.studentName}</td><td>${req.itemName}</td><td>${req.quantity}</td><td>${req.status}</td><td>${new Date(req.requestDate).toLocaleDateString()}</td></tr>`;
-                            });
-                            reportText += `</tbody></table>`;
-                        } else if (selectedReportType === 'usage') {
-                            const usageMap = {};
-                            filteredRequests.filter(r => r.status === 'Approved').forEach(req => {
-                                usageMap[req.itemName] = (usageMap[req.itemName] || 0) + 1;
-                            });
-                            reportText += `<b>Most Used Items:</b><br>`;
-                            reportText += `<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">`;
-                            reportText += `<thead><tr><th>Item Name</th><th>Times Borrowed</th></tr></thead><tbody>`;
-                            Object.entries(usageMap).sort((a,b) => b[1] - a[1]).forEach(([name, count]) => {
+                    // This data is specific to Admin 2 (Science & Sports)
+                    const inventoryDataArrays = await Promise.all(
+                        Object.values(inventoryTypes).map(type => fetch(type.api).then(res => res.json()))
+                    );
+                    const allInventory = [].concat(...inventoryDataArrays);
+                    const requestsResponse = await fetch('/api/admin2-requests'); 
+                    if (!requestsResponse.ok) throw new Error('Failed to fetch requests');
+                    const allRequests = await requestsResponse.json();
+                    
+                    const filteredRequests = allRequests.filter(r => new Date(r.requestDate) >= startDate);
+                    const filteredReturnedRequests = allRequests.filter(r => r.status === 'Returned' && new Date(r.requestDate) >= startDate);
+
+                    if (selectedReportType === 'inventory') {
+                        const totalItems = allInventory.reduce((sum, i) => sum + (i.originalQuantity || i.quantity || 0), 0);
+                        const availableItems = allInventory.reduce((sum, i) => sum + (i.quantity || 0), 0);
+                        const inUseItems = totalItems - availableItems;
+                        // --- MODIFIED: Include Damaged & Calibration ---
+                        const maintenanceItems = allInventory.filter(i => i.status === 'Maintenance' || i.status === 'Damaged' || i.status === 'Calibration').length;
+                        reportText += `<b>Summary (Science & Sports):</b><br>`;
+                        reportText += `Total Items: ${totalItems}<br>`;
+                        reportText += `Available Items: ${availableItems}<br>`;
+                        reportText += `Items In Use: ${inUseItems}<br>`;
+                        reportText += `Items Under Maintenance/Damaged/Calibration: ${maintenanceItems}<br><br>`;
+                        reportText += `<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">`;
+                        reportText += `<thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Total Qty</th><th>Borrowed</th><th>Available</th><th>Location</th><th>Status</th></tr></thead><tbody>`;
+                        allInventory.forEach(item => {
+                            const originalQty = item.originalQuantity || item.quantity || 0;
+                            const availableQty = item.quantity || 0;
+                            const borrowedQty = originalQty - availableQty;
+                            const displayStatus = borrowedQty > 0 ? 'In-Use' : (item.status || 'Available');
+                            reportText += `<tr><td>${item.itemId}</td><td>${item.name}</td><td>${item.category}</td><td>${originalQty}</td><td>${borrowedQty}</td><td>${availableQty}</td><td>${item.location}</td><td>${displayStatus}</td></tr>`;
+                        });
+                        reportText += `</tbody></table>`;
+                    } else if (selectedReportType === 'requests') {
+                         reportText += `<b>Summary (Science & Sports):</b><br>`;
+                        reportText += `Pending: ${filteredRequests.filter(r => r.status === 'Pending').length}<br>`;
+                        reportText += `Approved: ${filteredRequests.filter(r => r.status === 'Approved').length}<br>`;
+                        reportText += `Rejected: ${filteredRequests.filter(r => r.status === 'Rejected').length}<br>`;
+                        reportText += `Returned: ${filteredRequests.filter(r => r.status === 'Returned').length}<br><br>`;
+                        reportText += `<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">`;
+                        reportText += `<thead><tr><th>Requester</th><th>Item</th><th>Qty</th><th>Status</th><th>Date</th></tr></thead><tbody>`;
+                        filteredRequests.forEach(req => {
+                            reportText += `<tr><td>${req.studentName}</td><td>${req.itemName}</td><td>${req.quantity}</td><td>${req.status}</td><td>${new Date(req.requestDate).toLocaleDateString()}</td></tr>`;
+                        });
+                        reportText += `</tbody></table>`;
+                    } else if (selectedReportType === 'usage') {
+                        const approvedRequestsInPeriod = filteredRequests.filter(r => r.status === 'Approved');
+                        const usageMap = {};
+                        approvedRequestsInPeriod.forEach(req => {
+                            usageMap[req.itemName] = (usageMap[req.itemName] || 0) + req.quantity;
+                        });
+                        reportText += `<b>Summary (Science & Sports):</b><br>Total Items Borrowed (Approved) in Period: ${approvedRequestsInPeriod.reduce((sum, r) => sum + r.quantity, 0)}<br><br>`;
+                        reportText += `<b>Most Used Items:</b><br>`;
+                        reportText += `<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">`;
+                        reportText += `<thead><tr><th>Item Name</th><th>Quantity Borrowed</th></tr></thead><tbody>`;
+                        const usageData = Object.entries(usageMap).sort((a,b) => b[1] - a[1]);
+                        if(usageData.length === 0) {
+                            reportText += `<tr><td colspan="2" style="text-align:center;">No items approved for borrowing in this period.</td></tr>`;
+                        } else {
+                            usageData.forEach(([name, count]) => {
                                 reportText += `<tr><td>${name}</td><td>${count}</td></tr>`;
                             });
-                            reportText += `</tbody></table>`;
                         }
+                        reportText += `</tbody></table>`;
                     } else if (selectedReportType === 'registeredStudents') {
-                        await fetchAllUsers(); // Ensure allUsersData is up-to-date
-                        const filteredUsers = allUsersData.filter(user => {
+                        // Re-fetch users for the report, as 'allUsersData' might be stale
+                        const usersResponse = await fetch('/api/all-users');
+                        if (!usersResponse.ok) throw new Error('Failed to fetch users for report.');
+                        const reportUsersData = await usersResponse.json();
+
+                        const filteredUsers = reportUsersData.filter(user => {
                             if (user.role !== 'student') return false;
                             const registrationDate = new Date(parseInt(user._id.substring(0, 8), 16) * 1000);
                             return registrationDate >= startDate;
@@ -2197,6 +2827,100 @@
                             reportText += `<tr><td>${user.firstName} ${user.lastName}</td><td>${user.studentID}</td><td>${user.email}</td><td>${regDate}</td></tr>`;
                         });
                         reportText += `</tbody></table>`;
+                    
+                    } else if (selectedReportType === 'accountability') {
+                        const accountabilityMap = filteredReturnedRequests.reduce((acc, req) => {
+                            const studentId = req.studentId;
+                            if (!acc[studentId]) {
+                                acc[studentId] = { studentName: req.studentName, totalReturned: 0, damaged: 0, good: 0, incidents: [] }; 
+                            }
+                            const isDamagedOrLost = req.returnCondition === 'Damaged' || req.returnCondition === 'Lost';
+                            const conditionKey = isDamagedOrLost ? 'damaged' : 'good';
+                            acc[studentId][conditionKey] += req.quantity;
+                            acc[studentId].totalReturned += req.quantity;
+
+                            if (isDamagedOrLost) {
+                                acc[studentId].incidents.push({
+                                    itemName: req.itemName,
+                                    condition: req.returnCondition,
+                                    notes: req.damageNotes || 'No notes provided.',
+                                    date: new Date(req.requestDate).toLocaleDateString()
+                                });
+                            }
+                            return acc;
+                        }, {});
+
+                        const accountabilityData = await fetch('/api/reports/user-accountability').then(res => res.json());
+                        const adminCategories = ['Science', 'Sports'];
+                        const relevantStudentIds = new Set(allRequests.map(r => r.studentId.toString()));
+                        const filteredAccountabilityData = accountabilityData.filter(acc => relevantStudentIds.has(acc.studentId.toString()));
+
+                        reportText += `<b>Summary (Science & Sports):</b><br>Total Items Returned in Period: ${filteredReturnedRequests.reduce((sum, r) => sum + r.quantity, 0)}<br><br>`;
+                        reportText += `<h2>User Accountability Report Summary (Time-Filtered Returns)</h2>`;
+                        reportText += `<p>Data reflects the quantity of items marked 'Returned' in the selected period, grouped by condition.</p><br>`;
+                        reportText += `<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">`;
+                        reportText += `<thead><tr><th>Student Name</th><th>Total Returned</th><th style="color:var(--success);">Returned Good</th><th style="color:var(--danger);">Damaged/Lost</th></tr></thead><tbody>`;
+                        
+                        const finalData = Object.values(accountabilityMap).sort((a, b) => a.studentName.localeCompare(b.studentName));
+                        
+                        if (finalData.length === 0) {
+                            reportText += `<tr><td colspan="4" style="text-align:center;">No items were returned during this period.</td></tr>`;
+                        } else {
+                            finalData.forEach(student => {
+                                reportText += `<tr>
+                                    <td>${student.studentName}</td>
+                                    <td>${student.totalReturned}</td>
+                                    <td style="color:var(--success); font-weight:600;">${student.good}</td>
+                                    <td style="color:var(--danger); font-weight:600;">${student.damaged}</td>
+                                </tr>`;
+                                if (student.incidents && student.incidents.length > 0) {
+                                    reportText += `
+                                    <tr style="background-color: ${body.classList.contains('dark') ? '#343a40' : '#f8f9fa'};">
+                                        <td colspan="4" style="padding-left: 30px; border-bottom: none;">
+                                            <details open>
+                                                <summary style="font-weight: 600; color: var(--danger);">View Damaged/Lost Items (${student.incidents.length} items)</summary>
+                                                <table style="width: 95%; margin: 10px 0; border: 1px solid var(--border-light);">
+                                                    <thead>
+                                                        <tr style="font-size: 0.8rem;">
+                                                            <th style="width: 30%; background-color: #fcebeb; color: var(--text-dark);">Item Name</th>
+                                                            <th style="width: 15%; background-color: #fcebeb; color: var(--text-dark);">Condition</th>
+                                                            <th style="width: 45%; background-color: #fcebeb; color: var(--text-dark);">Notes</th>
+                                                            <th style="width: 10%; background-color: #fcebeb; color: var(--text-dark);">Date</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        ${student.incidents.map(inc => `
+                                                            <tr>
+                                                                <td>${inc.itemName}</td>
+                                                                <td style="color: ${inc.condition === 'Lost' ? 'var(--danger)' : 'var(--warning)'}; font-weight: 600;">${inc.condition}</td>
+                                                                <td>${inc.notes}</td>
+                                                                <td>${inc.date}</td>
+                                                            </tr>
+                                                        `).join('')}
+                                                    </tbody>
+                                                </table>
+                                            </details>
+                                        </td>
+                                    </tr>`;
+                                }
+                            });
+                        }
+                        reportText += `</tbody></table>`;
+                        
+                        reportText += `<br><h2>All-Time Pending Incidents Summary (Science & Sports)</h2>`;
+                        reportText += `<p>This table shows all students with **currently pending** (unresolved) damaged/lost item incidents from your categories.</p><br>`;
+                        reportText += `<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">`;
+                        reportText += `<thead><tr><th>Student Name</th><th>Pending Incidents</th></tr></thead><tbody>`;
+                        
+                        const pendingIncidents = filteredAccountabilityData.filter(s => s.pendingIncidents > 0);
+                        if (pendingIncidents.length === 0) {
+                            reportText += `<tr><td colspan="2" style="text-align:center;">No pending incidents found for your categories.</td></tr>`;
+                        } else {
+                            pendingIncidents.forEach(student => {
+                                reportText += `<tr><td>${student.studentName}</td><td style="color:var(--danger); font-weight:600;">${student.pendingIncidents}</td></tr>`;
+                            });
+                        }
+                        reportText += `</tbody></table>`;
                     }
                     
                     reportResult.innerHTML = reportText;
@@ -2206,28 +2930,118 @@
                 } catch (error) { showToast(`Error generating report: ${error.message}`); }
             });
 
+
             printReportBtn.addEventListener('click', () => {
-                const printWindow = window.open('', '', 'width=800,height=600');
+                const reportContent = reportResult.innerHTML;
+                const selectedReportText = reportTypeSelect.options[reportTypeSelect.selectedIndex].text;
+                
+                const printWindow = window.open('', '_blank', 'width=800,height=600');
                 printWindow.document.write(`
-                    <html><head><title>LabLinX Report</title>
-                    <style>
-                        body { font-family: sans-serif; padding: 20px; }
-                        table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
-                        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-                        th { background-color: #f2f2f2; }
-                        h1, b { color: #00503B; }
-                    </style></head><body>
-                        <h1>LabLinX Report</h1>
-                        ${reportResult.innerHTML}
-                    </body></html>`);
+                    <html>
+                    <head>
+                        <title>LabLinX Report - ${selectedReportText}</title>
+                        <style>
+                            body { font-family: 'Times New Roman', serif; padding: 20px; font-size: 11pt; }
+                            table { border-collapse: collapse; width: 100%; margin-top: 15px; font-size: 10pt; }
+                            th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+                            th { background-color: #f0f0f0; color: #000; font-weight: bold; text-transform: uppercase; }
+                            b { color: #000; }
+                            .report-header { text-align: center; margin-bottom: 25px; }
+                            .report-header img { width: 80px; height: 80px; margin-bottom: 10px; }
+                            .report-header h2 { margin: 0; font-size: 18pt; color: #00503B; font-weight: bold; }
+                            .report-header h3 { margin: 5px 0 0 0; font-size: 14pt; color: #007A5A; }
+                            .report-info { text-align: left; margin-top: 15px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+                            .report-info b { font-weight: 700; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="report-header">
+                            <img src="logo.png" alt="DLSU-D HS Logo">
+                            <h2>De La Salle University - Dasmariñas</h2>
+                            <h3>LabLinX Inventory Management System</h3>
+                        </div>
+                        <div class="report-info">
+                            <b>GENERATED REPORT:</b> ${selectedReportText.toUpperCase()}<br>
+                            <b>DATE GENERATED:</b> ${new Date().toLocaleString()}<br>
+                        </div>
+                        ${reportContent}
+                    </body>
+                    </html>
+                `);
                 printWindow.document.close();
                 printWindow.focus();
-                printWindow.print();
+                printWindow.onload = () => {
+                    printWindow.print();
+                    printWindow.onafterprint = () => printWindow.close();
+                };
             });
+            
+            // --- 13. WEBSOCKET REAL-TIME REFRESH ---
+            function connectWebSocket() {
+                const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+                const host = window.location.host;
+                const ws = new WebSocket(`${protocol}://${host}`);
+
+                ws.onopen = () => {
+                    console.log('WebSocket Connected');
+                };
+
+                ws.onmessage = (event) => {
+                    try {
+                        const message = JSON.parse(event.data);
+                        if (message.type === 'refresh') {
+                            console.log('Refresh signal received from WebSocket');
+                            showToast('Data refreshed in real-time.');
+                            const activePage = document.querySelector('.page-content.active');
+                            if (activePage) {
+                                const pageId = activePage.id.replace('-content', '');
+                                if (pageId === 'dashboard') {
+                                    updateSuperAdminDashboard();
+                                } else if (pageId === 'inventory') {
+                                    if (isViewingInventoryArchive) { fetchArchivedInventory(); } else { for (const type in inventoryTypes) fetchInventory(type); }
+                                } else if (pageId === 'requests') {
+                                    if (isViewingTrash) { fetchDeletedRequests(); } else { fetchAllRequests(); }
+                                } else if (pageId === 'notifications') {
+                                    fetchAdminNotifications();
+                                } else if (pageId === 'history') {
+                                    fetchHistoryLogs();
+                                } else if (pageId === 'super-admin') {
+                                    loadSuperAdminData();
+                                } else if (pageId === 'user-management') {
+                                    fetchAllUsers(); // Removed archive check
+                                } else if (pageId === 'profile-requests') {
+                                    fetchProfileUpdateRequests();
+                                } else if (pageId === 'registration-requests') {
+                                    fetchPendingRegistrations();
+                                } // --- REMOVED: 'incidents' else if ---
+                            } else {
+                                // If no page is active, default to dashboard
+                                updateSuperAdminDashboard();
+                            }
+                             if (!activePage || activePage.id !== 'notifications-content') { // Avoid double-fetching
+                                fetchAdminNotifications();
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error processing WebSocket message:', e);
+                    }
+                };
+
+                ws.onclose = () => {
+                    console.log('WebSocket Disconnected. Reconnecting in 3s...');
+                    setTimeout(connectWebSocket, 3000); 
+                };
+
+                ws.onerror = (err) => {
+                    console.error('WebSocket Error:', err);
+                    ws.close(); 
+                };
+            }
 
             // --- GO! ---
             initializeApp();
+            connectWebSocket(); // --- ADDED ---
         });
     </script>
 </body>
-</html>
+</html>  
